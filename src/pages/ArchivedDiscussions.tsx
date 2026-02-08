@@ -10,7 +10,7 @@ import { LoginButton } from '@/components/auth/LoginButton';
 type SourceFilter = 'all' | 'supabase' | 'local';
 
 export function ArchivedDiscussions() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [source, setSource] = useState<SourceFilter>('all');
   const [search, setSearch] = useState('');
@@ -20,13 +20,13 @@ export function ArchivedDiscussions() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['archives', source, search, limit, offset],
+    queryKey: ['archives', source, search, limit, offset, user?.id ?? 'anon'],
     queryFn: () => api.archives.list({ source, search: search || undefined, limit, offset }),
     staleTime: 30_000,
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['archives-stats'],
+    queryKey: ['archives-stats', user?.id ?? 'anon'],
     queryFn: () => api.archives.stats(),
     staleTime: 60_000,
   });

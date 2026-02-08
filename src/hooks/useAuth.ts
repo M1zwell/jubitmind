@@ -17,10 +17,12 @@ export function useAuth() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthToken(session?.access_token ?? null);
       setState({ user: session?.user ?? null, session, loading: false });
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthToken(session?.access_token ?? null);
       setState({ user: session?.user ?? null, session, loading: false });
     });
 
@@ -43,8 +45,16 @@ export function useAuth() {
   return { ...state, signIn, signOut };
 }
 
+// Cache the token from the last auth state change for synchronous access
+let _cachedToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  _cachedToken = token;
+}
+
 export function getAuthToken(): string | null {
-  // Synchronous read from localStorage for API calls
+  if (_cachedToken) return _cachedToken;
+  // Fallback: read from localStorage
   const storageKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
   if (!storageKey) return null;
   try {

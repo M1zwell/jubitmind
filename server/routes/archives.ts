@@ -32,10 +32,13 @@ router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
     const search = (req.query.search as string) || '';
 
     const items: UnifiedArchiveItem[] = [];
+    const hasAuth = !!req.user;
+    console.log(`[Archives] GET / source=${source} auth=${hasAuth} user=${req.user?.email || 'anon'}`);
 
     // Fetch Supabase archives if user is authenticated and Supabase is configured
+    // Fetch all matching items from Supabase (pagination applied after combining with local)
     if (isSupabaseConfigured() && req.user && (source === 'all' || source === 'supabase')) {
-      const supabaseItems = await fetchSupabaseArchives(search, limit, offset);
+      const supabaseItems = await fetchSupabaseArchives(search);
       items.push(...supabaseItems);
     }
 
@@ -183,25 +186,31 @@ router.delete('/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
 
 // --- Helpers ---
 
-async function fetchSupabaseArchives(search: string, limit: number, _offset: number): Promise<UnifiedArchiveItem[]> {
-  if (!supabase) return [];
+async function fetchSupabaseArchives(search: string): Promise<UnifiedArchiveItem[]> {
+  if (!supabase) {
+    console.log('[Archives] fetchSupabaseArchives: supabase client is null');
+    return [];
+  }
 
   const items: UnifiedArchiveItem[] = [];
 
-  // Fetch archived conversation rooms
+  // Fetch archived conversation rooms (don't fetch full messages for list view)
   let roomQuery = supabase
     .from('archived_conversations')
-    .select('id, room_topic, room_description, messages, participants, total_upvotes, created_at, ended_at')
+    .select('id, room_topic, room_description, participants, total_upvotes, created_at, ended_at')
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .limit(500);
 
   if (search) {
     roomQuery = roomQuery.ilike('room_topic', `%${search}%`);
   }
 
-  const { data: rooms } = await roomQuery;
-  if (rooms) {
-    items.push(...rooms.map(normalizeRoom));
+  const { data: rooms, error: roomError } = await roomQuery;
+  if (roomError) {
+    console.error('[Archives] Supabase rooms query error:', roomError.message, roomError.code);
+  } else {
+    console.log(`[Archives] Fetched ${rooms?.length || 0} Supabase rooms`);
+    if (rooms) items.push(...rooms.map(normalizeRoom));
   }
 
   // Fetch chat sessions
@@ -209,15 +218,18 @@ async function fetchSupabaseArchives(search: string, limit: number, _offset: num
     .from('chat_sessions')
     .select('id, title, session_type, selected_models, message_count, is_archived, created_at, updated_at, user_id')
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .limit(500);
 
   if (search) {
     chatQuery = chatQuery.ilike('title', `%${search}%`);
   }
 
-  const { data: chats } = await chatQuery;
-  if (chats) {
-    items.push(...chats.map(normalizeChatSession));
+  const { data: chats, error: chatError } = await chatQuery;
+  if (chatError) {
+    console.error('[Archives] Supabase chats query error:', chatError.message, chatError.code);
+  } else {
+    console.log(`[Archives] Fetched ${chats?.length || 0} Supabase chat sessions`);
+    if (chats) items.push(...chats.map(normalizeChatSession));
   }
 
   return items;
@@ -239,24 +251,24 @@ async function fetchLocalSessions(search: string): Promise<UnifiedArchiveItem[]>
 }
 
 function normalizeRoom(row: Record<string, unknown>): UnifiedArchiveItem {
-  const messages = Array.isArray(row.messages) ? row.messages : [];
   const participants = Array.isArray(row.participants) ? row.participants : [];
+  const messages = Array.isArray(row.messages) ? row.messages : [];
 
   // Extract model names from participants
   const models = participants
     .map((p: Record<string, unknown>) => (p.model_name || p.name || '') as string)
     .filter(Boolean);
 
-  // Get preview from first message
+  // Preview from description or first message (if available)
   const firstMsg = messages[0] as Record<string, unknown> | undefined;
-  const preview = (firstMsg?.content as string) || (row.room_description as string) || '';
+  const preview = (row.room_description as string) || (firstMsg?.content as string) || '';
 
   return {
     id: row.id as string,
     source: 'supabase-room',
     title: (row.room_topic as string) || 'Untitled Discussion',
     preview: preview.slice(0, 200),
-    messageCount: messages.length,
+    messageCount: messages.length || (row.message_count as number) || 0,
     participants: participants.map((p: Record<string, unknown>) => ((p.name || p.model_name || '') as string)).filter(Boolean),
     models,
     createdAt: row.created_at as string,

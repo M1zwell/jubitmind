@@ -26,8 +26,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 async function authRequest<T>(path: string, options?: RequestInit): Promise<T> {
   const headers = buildHeaders(true);
   const res = await fetch(`${BASE}${path}`, {
-    headers,
     ...options,
+    headers: { ...headers, ...(options?.headers as Record<string, string> || {}) },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
