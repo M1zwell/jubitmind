@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import express from 'express';
 import cors from 'cors';
 import cliRoutes from './routes/cli.js';
@@ -8,12 +10,13 @@ import memoryRoutes from './routes/memory.js';
 import systemRoutes from './routes/system.js';
 import providersRoutes from './routes/providers.js';
 import conversationsRoutes from './routes/conversations.js';
+import archivesRoutes from './routes/archives.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: 'http://127.0.0.1:3000' }));
+app.use(cors({ origin: ['http://127.0.0.1:8081', 'http://localhost:8081', 'http://127.0.0.1:3000'] }));
 app.use(express.json({ limit: '10mb' }));
 
 // Routes
@@ -26,6 +29,7 @@ app.use('/api/memory', memoryRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/providers', providersRoutes);
 app.use('/api/conversations', conversationsRoutes);
+app.use('/api/archives', archivesRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler

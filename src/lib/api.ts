@@ -1,8 +1,32 @@
+import { getAuthToken } from '@/hooks/useAuth';
+
 const BASE = '/api';
+
+function buildHeaders(includeAuth = false): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (includeAuth) {
+    const token = getAuthToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+async function authRequest<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers = buildHeaders(true);
+  const res = await fetch(`${BASE}${path}`, {
+    headers,
     ...options,
   });
   if (!res.ok) {
@@ -140,5 +164,24 @@ export const api = {
     const params = new URLSearchParams({ sessionId });
     if (project) params.set('project', project);
     return request<{ session: unknown }>(`/conversations/cloud/export?${params}`);
+  },
+
+  // Archives (unified Supabase + local)
+  archives: {
+    list: (params?: { source?: string; search?: string; limit?: number; offset?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.source) query.set('source', params.source);
+      if (params?.search) query.set('search', params.search);
+      if (params?.limit) query.set('limit', String(params.limit));
+      if (params?.offset) query.set('offset', String(params.offset));
+      return authRequest<import('./types').ArchiveListResponse>(`/archives?${query}`);
+    },
+    get: (id: string, source?: string) => {
+      const query = source ? `?source=${source}` : '';
+      return authRequest<{ item: import('./types').UnifiedArchiveItem; messages?: unknown[]; participants?: unknown[] }>(`/archives/${id}${query}`);
+    },
+    stats: () => authRequest<{ stats: import('./types').ArchiveStats }>('/archives/stats'),
+    delete: (id: string, source: string) =>
+      authRequest<{ ok: boolean }>(`/archives/${id}?source=${source}`, { method: 'DELETE' }),
   },
 };

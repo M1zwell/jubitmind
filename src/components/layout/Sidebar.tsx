@@ -11,6 +11,7 @@ import {
   Activity,
   Cpu,
   History,
+  Archive,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -42,6 +43,7 @@ const NAV_SECTIONS = [
     label: 'System',
     items: [
       { to: '/history', icon: History, label: 'History' },
+      { to: '/archived-discussions', icon: Archive, label: 'Archives' },
       { to: '/health', icon: Activity, label: 'Health' },
     ],
   },
@@ -55,9 +57,9 @@ export function Sidebar() {
           <div className="w-6 h-6 rounded bg-teal-500 flex items-center justify-center">
             <Terminal className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-sm font-semibold text-[var(--color-text-primary)]">Claude Code</span>
+          <span className="text-sm font-semibold text-[var(--color-text-primary)]">JubitMind</span>
         </div>
-        <span className="text-xs text-[var(--color-text-muted)] mt-0.5 block">Dev Admin Dashboard</span>
+        <span className="text-xs text-[var(--color-text-muted)] mt-0.5 block">AI Interaction Audit</span>
       </div>
 
       <nav className="flex-1 py-2">
@@ -89,7 +91,7 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 py-3 border-t border-[var(--color-border)]">
-        <span className="text-xs text-[var(--color-text-muted)]">localhost:3000</span>
+        <span className="text-xs text-[var(--color-text-muted)]">localhost:8081</span>
       </div>
     </aside>
   );

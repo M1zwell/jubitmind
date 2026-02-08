@@ -12,6 +12,7 @@ import { MemoryManager } from '@/components/memory/MemoryManager';
 import { UsageDashboard } from '@/components/stats/UsageDashboard';
 import { ProvidersPage } from '@/components/providers/ProvidersPage';
 import { ConversationHistory } from '@/components/conversations/ConversationHistory';
+import { ArchivedDiscussions } from '@/pages/ArchivedDiscussions';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/commands" element={<CommandTreeView />} />
             <Route path="/memory" element={<MemoryManager />} />
             <Route path="/history" element={<ConversationHistory />} />
+            <Route path="/archived-discussions" element={<ArchivedDiscussions />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>

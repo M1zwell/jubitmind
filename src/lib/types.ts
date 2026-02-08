@@ -209,3 +209,35 @@ export interface SessionTags {
   manualTags: string[];
   computedAt: string;
 }
+
+// --- Unified Archives ---
+
+export interface UnifiedArchiveItem {
+  id: string;
+  source: 'supabase-room' | 'supabase-chat' | 'local-claude';
+  title: string;
+  preview: string;
+  messageCount: number;
+  participants?: string[];
+  models?: string[];
+  createdAt: string;
+  endedAt?: string;
+  riskLevel?: RiskLevel;
+  riskScore?: number;
+  upvotes?: number;
+  tags?: string[];
+  userId?: string;
+  project?: string;
+}
+
+export interface ArchiveListResponse {
+  items: UnifiedArchiveItem[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ArchiveStats {
+  local: { sessions: number };
+  supabase: { rooms: number; chats: number };
+}

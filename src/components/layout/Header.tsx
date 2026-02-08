@@ -1,5 +1,6 @@
 import { useHealth } from '@/hooks/useClaudeApi';
 import { Circle } from 'lucide-react';
+import { LoginButton } from '@/components/auth/LoginButton';
 
 export function Header() {
   const { data, isLoading } = useHealth();
@@ -7,7 +8,7 @@ export function Header() {
   return (
     <header className="flex-none h-10 px-4 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)] flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--color-text-muted)]">Claude Code Dashboard</span>
+        <span className="text-xs text-[var(--color-text-muted)]">JubitMind Dashboard</span>
       </div>
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
@@ -23,6 +24,7 @@ export function Header() {
             {(data as Record<string, string>).cliVersion || 'CLI'}
           </span>
         )}
+        <LoginButton />
       </div>
     </header>
   );
