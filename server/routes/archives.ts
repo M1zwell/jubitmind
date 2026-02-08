@@ -36,9 +36,9 @@ router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
     console.log(`[Archives] GET / source=${source} auth=${hasAuth} user=${req.user?.email || 'anon'}`);
 
     // Fetch Supabase archives if user is authenticated and Supabase is configured
-    // Fetch all matching items from Supabase (pagination applied after combining with local)
+    // Filter by user_id + public rooms (pagination applied after combining with local)
     if (isSupabaseConfigured() && req.user && (source === 'all' || source === 'supabase')) {
-      const supabaseItems = await fetchSupabaseArchives(search);
+      const supabaseItems = await fetchSupabaseArchives(search, req.user.id);
       items.push(...supabaseItems);
     }
 
@@ -73,11 +73,14 @@ router.get('/stats', optionalAuth, async (req: AuthenticatedRequest, res) => {
     const localSessions = await getLocalSessions();
     stats.local = { sessions: localSessions.length };
 
-    // Supabase stats
+    // Supabase stats - scoped to this user's archives + public
     if (isSupabaseConfigured() && req.user && supabase) {
+      const userId = req.user.id;
       const [roomCount, chatCount] = await Promise.all([
-        supabase.from('archived_conversations').select('id', { count: 'exact', head: true }),
-        supabase.from('chat_sessions').select('id', { count: 'exact', head: true }),
+        supabase.from('archived_conversations').select('id', { count: 'exact', head: true })
+          .or(`user_id.eq.${userId},is_public.eq.true`),
+        supabase.from('chat_sessions').select('id', { count: 'exact', head: true })
+          .eq('user_id', userId),
       ]);
       stats.supabase = {
         rooms: roomCount.count || 0,
@@ -186,7 +189,7 @@ router.delete('/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
 
 // --- Helpers ---
 
-async function fetchSupabaseArchives(search: string): Promise<UnifiedArchiveItem[]> {
+async function fetchSupabaseArchives(search: string, userId: string): Promise<UnifiedArchiveItem[]> {
   if (!supabase) {
     console.log('[Archives] fetchSupabaseArchives: supabase client is null');
     return [];
@@ -194,10 +197,11 @@ async function fetchSupabaseArchives(search: string): Promise<UnifiedArchiveItem
 
   const items: UnifiedArchiveItem[] = [];
 
-  // Fetch archived conversation rooms (don't fetch full messages for list view)
+  // Fetch archived conversation rooms belonging to this user OR public rooms
   let roomQuery = supabase
     .from('archived_conversations')
-    .select('id, room_topic, room_description, participants, total_upvotes, created_at, ended_at')
+    .select('id, room_topic, room_description, participants, total_upvotes, created_at, ended_at, user_id, is_public')
+    .or(`user_id.eq.${userId},is_public.eq.true`)
     .order('created_at', { ascending: false })
     .limit(500);
 
@@ -209,14 +213,17 @@ async function fetchSupabaseArchives(search: string): Promise<UnifiedArchiveItem
   if (roomError) {
     console.error('[Archives] Supabase rooms query error:', roomError.message, roomError.code);
   } else {
-    console.log(`[Archives] Fetched ${rooms?.length || 0} Supabase rooms`);
+    const ownCount = rooms?.filter(r => r.user_id === userId).length || 0;
+    const publicCount = (rooms?.length || 0) - ownCount;
+    console.log(`[Archives] Fetched ${rooms?.length || 0} rooms (${ownCount} owned, ${publicCount} public) for user ${userId.slice(0, 8)}`);
     if (rooms) items.push(...rooms.map(normalizeRoom));
   }
 
-  // Fetch chat sessions
+  // Fetch chat sessions belonging to this user only
   let chatQuery = supabase
     .from('chat_sessions')
-    .select('id, title, session_type, selected_models, message_count, is_archived, created_at, updated_at, user_id')
+    .select('id, title, status, is_archived, created_at, ended_at, user_id')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(500);
 
@@ -228,7 +235,7 @@ async function fetchSupabaseArchives(search: string): Promise<UnifiedArchiveItem
   if (chatError) {
     console.error('[Archives] Supabase chats query error:', chatError.message, chatError.code);
   } else {
-    console.log(`[Archives] Fetched ${chats?.length || 0} Supabase chat sessions`);
+    console.log(`[Archives] Fetched ${chats?.length || 0} chat sessions for user ${userId.slice(0, 8)}`);
     if (chats) items.push(...chats.map(normalizeChatSession));
   }
 
@@ -278,17 +285,14 @@ function normalizeRoom(row: Record<string, unknown>): UnifiedArchiveItem {
 }
 
 function normalizeChatSession(row: Record<string, unknown>): UnifiedArchiveItem {
-  const selectedModels = Array.isArray(row.selected_models) ? row.selected_models : [];
-
   return {
     id: row.id as string,
     source: 'supabase-chat',
     title: (row.title as string) || 'Chat Session',
-    preview: `${row.session_type || 'chat'} session with ${selectedModels.join(', ') || 'unknown model'}`,
-    messageCount: (row.message_count as number) || 0,
-    models: selectedModels as string[],
+    preview: `Chat session (${row.status || 'unknown'})`,
+    messageCount: 0,
     createdAt: row.created_at as string,
-    endedAt: row.updated_at as string | undefined,
+    endedAt: row.ended_at as string | undefined,
     userId: row.user_id as string | undefined,
   };
 }
