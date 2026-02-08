@@ -5,8 +5,6 @@ import type { Provider } from '@supabase/supabase-js';
 
 const PROVIDERS: { id: Provider; label: string; color: string }[] = [
   { id: 'google', label: 'Google', color: 'text-red-400' },
-  { id: 'github', label: 'GitHub', color: 'text-gray-300' },
-  { id: 'discord', label: 'Discord', color: 'text-indigo-400' },
   { id: 'apple', label: 'Apple', color: 'text-gray-300' },
 ];
 

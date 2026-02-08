@@ -24,7 +24,7 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
         <LogIn className="w-8 h-8 text-[var(--color-text-muted)]" />
         <p className="text-sm text-[var(--color-text-muted)]">Sign in to access this feature</p>
         <div className="flex gap-2">
-          {(['google', 'github'] as Provider[]).map((provider) => (
+          {(['google', 'apple'] as Provider[]).map((provider) => (
             <button
               key={provider}
               onClick={() => signIn(provider)}
