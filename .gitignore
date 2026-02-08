@@ -1,0 +1,9 @@
+node_modules/
+dist/
+providers.json
+conversations/
+*.bak
+*.tmp
+.env
+.env.local
+.DS_Store
