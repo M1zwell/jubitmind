@@ -168,12 +168,14 @@ export const api = {
 
   // Archives (unified Supabase + local)
   archives: {
-    list: (params?: { source?: string; search?: string; limit?: number; offset?: number }) => {
+    list: (params?: { source?: string; search?: string; limit?: number; offset?: number; productType?: string; visibility?: string }) => {
       const query = new URLSearchParams();
       if (params?.source) query.set('source', params.source);
       if (params?.search) query.set('search', params.search);
       if (params?.limit) query.set('limit', String(params.limit));
       if (params?.offset) query.set('offset', String(params.offset));
+      if (params?.productType) query.set('productType', params.productType);
+      if (params?.visibility) query.set('visibility', params.visibility);
       return authRequest<import('./types').ArchiveListResponse>(`/archives?${query}`);
     },
     get: (id: string, source?: string) => {
@@ -183,5 +185,12 @@ export const api = {
     stats: () => authRequest<{ stats: import('./types').ArchiveStats }>('/archives/stats'),
     delete: (id: string, source: string) =>
       authRequest<{ ok: boolean }>(`/archives/${id}?source=${source}`, { method: 'DELETE' }),
+    analytics: () => authRequest<{ analytics: import('./types').AnalyticsData }>('/archives/analytics'),
+    export: async (id: string, source: string) => {
+      const headers = buildHeaders(true);
+      const res = await fetch(`${BASE}/archives/${id}/export?source=${source}`, { headers });
+      if (!res.ok) throw new Error('Export failed');
+      return res.json();
+    },
   },
 };

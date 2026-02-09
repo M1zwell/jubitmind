@@ -212,6 +212,28 @@ export interface SessionTags {
 
 // --- Unified Archives ---
 
+export type ProductType = 'chat' | 'chatab' | 'chatlab' | 'chatlab-agent' | 'theater' | 'unknown';
+export type VisibilityType = 'private' | 'public' | 'shared';
+
+export interface EngagementSignals {
+  cost_cents?: number;
+  response_time_ms?: number;
+  token_count?: number;
+  dwell_ms?: number;
+  scroll_depth?: number;
+  copied?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ArenaMetadata {
+  battle_id?: string;
+  task_type?: string;
+  models_compared?: string[];
+  winner_model?: string;
+  vote_type?: string;
+  engagement_signals?: Record<string, EngagementSignals>;
+}
+
 export interface UnifiedArchiveItem {
   id: string;
   source: 'supabase-room' | 'supabase-chat' | 'local-claude';
@@ -228,6 +250,10 @@ export interface UnifiedArchiveItem {
   tags?: string[];
   userId?: string;
   project?: string;
+  productType?: ProductType;
+  visibility?: VisibilityType;
+  arenaMetadata?: ArenaMetadata;
+  summary?: string;
 }
 
 export interface ArchiveListResponse {
@@ -239,5 +265,16 @@ export interface ArchiveListResponse {
 
 export interface ArchiveStats {
   local: { sessions: number };
-  supabase: { rooms: number; chats: number };
+  supabase: { rooms: number; chats: number; byType?: Record<string, number> };
+}
+
+export interface AnalyticsData {
+  modelUsage: Record<string, number>;
+  typeDistribution: Record<string, number>;
+  activityTimeline: Array<{ date: string; count: number }>;
+  riskDistribution: { critical: number; high: number; medium: number; low: number };
+  costEstimate: { totalCents: number; arenaCount: number };
+  topModels: Array<{ model: string; wins: number; appearances: number }>;
+  totalArchives: number;
+  totalLocal: number;
 }

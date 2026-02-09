@@ -1,13 +1,32 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Archive, Cloud, HardDrive, BarChart3, RefreshCw, ChevronDown } from 'lucide-react';
+import { Search, Archive, Cloud, HardDrive, BarChart3, RefreshCw, ChevronDown, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import type { UnifiedArchiveItem } from '@/lib/types';
+import type { UnifiedArchiveItem, ProductType } from '@/lib/types';
 import { ArchiveCard } from '@/components/archives/ArchiveCard';
+import { ArchiveDetailRouter } from '@/components/archives/details/ArchiveDetailRouter';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { SkeletonDetail } from '@/components/shared/SkeletonDetail';
 import { LoginButton } from '@/components/auth/LoginButton';
+import { getSourceLink } from '@/lib/config';
 
 type SourceFilter = 'all' | 'supabase' | 'local';
+
+const PRODUCT_TYPE_FILTERS: { value: ProductType | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'chat', label: 'Chat' },
+  { value: 'chatab', label: 'Arena' },
+  { value: 'chatlab', label: 'ChatLab' },
+  { value: 'chatlab-agent', label: 'Agent' },
+  { value: 'theater', label: 'Theater' },
+];
+
+const VISIBILITY_FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'private', label: 'Private' },
+  { value: 'public', label: 'Public' },
+] as const;
 
 export function ArchivedDiscussions() {
   const { user, loading: authLoading } = useAuth();
@@ -18,10 +37,19 @@ export function ArchivedDiscussions() {
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [productType, setProductType] = useState<ProductType | 'all'>('all');
+  const [visibility, setVisibility] = useState<string>('all');
 
   const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['archives', source, search, limit, offset, user?.id ?? 'anon'],
-    queryFn: () => api.archives.list({ source, search: search || undefined, limit, offset }),
+    queryKey: ['archives', source, search, limit, offset, productType, visibility, user?.id ?? 'anon'],
+    queryFn: () => api.archives.list({
+      source,
+      search: search || undefined,
+      limit,
+      offset,
+      productType: productType !== 'all' ? productType : undefined,
+      visibility: visibility !== 'all' ? visibility : undefined,
+    }),
     staleTime: 30_000,
   });
 
@@ -40,14 +68,28 @@ export function ArchivedDiscussions() {
     },
   });
 
-  const { data: expandedDetail } = useQuery({
+  const expandedItem = expandedId ? data?.items.find(i => i.id === expandedId) : null;
+
+  const { data: expandedDetail, isLoading: detailLoading } = useQuery({
     queryKey: ['archive-detail', expandedId],
-    queryFn: () => {
-      const item = data?.items.find(i => i.id === expandedId);
-      return api.archives.get(expandedId!, item?.source);
-    },
+    queryFn: () => api.archives.get(expandedId!, expandedItem?.source),
     enabled: !!expandedId,
   });
+
+  const handleExport = useCallback(async (item: UnifiedArchiveItem) => {
+    try {
+      const data = await api.archives.export(item.id, item.source);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `archive-${item.title.replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 50)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('[Archives] Export failed:', err);
+    }
+  }, []);
 
   const items = data?.items || [];
   const total = data?.total || 0;
@@ -55,10 +97,11 @@ export function ArchivedDiscussions() {
 
   const sourceStats = useMemo(() => {
     const s = stats?.stats;
-    if (!s) return { local: 0, supabase: 0 };
+    if (!s) return { local: 0, supabase: 0, byType: {} as Record<string, number> };
     return {
       local: (s.local as { sessions: number })?.sessions || 0,
       supabase: ((s.supabase as { rooms: number; chats: number })?.rooms || 0) + ((s.supabase as { rooms: number; chats: number })?.chats || 0),
+      byType: (s.supabase as { byType?: Record<string, number> })?.byType || {},
     };
   }, [stats]);
 
@@ -93,10 +136,17 @@ export function ArchivedDiscussions() {
           {sourceStats.local} local sessions
         </span>
         {user && (
-          <span className="flex items-center gap-1">
-            <Cloud className="w-3 h-3" />
-            {sourceStats.supabase} cloud archives
-          </span>
+          <>
+            <span className="flex items-center gap-1">
+              <Cloud className="w-3 h-3" />
+              {sourceStats.supabase} cloud archives
+            </span>
+            {Object.keys(sourceStats.byType).length > 0 && (
+              <span className="text-[var(--color-text-muted)]">
+                ({Object.entries(sourceStats.byType).map(([k, v]) => `${v} ${k}`).join(', ')})
+              </span>
+            )}
+          </>
         )}
         {!user && (
           <span className="text-yellow-500/80">Sign in to see cloud archives</span>
@@ -104,47 +154,88 @@ export function ArchivedDiscussions() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4">
-        {/* Source tabs */}
-        <div className="flex rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] overflow-hidden">
-          {([
-            { value: 'all' as SourceFilter, label: 'All', icon: BarChart3 },
-            { value: 'supabase' as SourceFilter, label: 'Cloud', icon: Cloud },
-            { value: 'local' as SourceFilter, label: 'Local', icon: HardDrive },
-          ]).map(tab => (
-            <button
-              key={tab.value}
-              onClick={() => { setSource(tab.value); setOffset(0); }}
-              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                source === tab.value
-                  ? 'bg-teal-500/20 text-teal-400'
-                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
-              }`}
-            >
-              <tab.icon className="w-3 h-3" />
-              {tab.label}
-            </button>
-          ))}
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          {/* Source tabs */}
+          <div className="flex rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] overflow-hidden">
+            {([
+              { value: 'all' as SourceFilter, label: 'All', icon: BarChart3 },
+              { value: 'supabase' as SourceFilter, label: 'Cloud', icon: Cloud },
+              { value: 'local' as SourceFilter, label: 'Local', icon: HardDrive },
+            ]).map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => { setSource(tab.value); setOffset(0); }}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                  source === tab.value
+                    ? 'bg-teal-500/20 text-teal-400'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+                }`}
+              >
+                <tab.icon className="w-3 h-3" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
+              placeholder="Search archives..."
+              className="w-full pl-7 pr-3 py-1.5 text-xs rounded bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-teal-500/50"
+            />
+          </div>
         </div>
 
-        {/* Search */}
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-muted)]" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
-            placeholder="Search archives..."
-            className="w-full pl-7 pr-3 py-1.5 text-xs rounded bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-teal-500/50"
-          />
-        </div>
+        {/* Product type filter pills + visibility filter */}
+        {(source === 'all' || source === 'supabase') && user && (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              {PRODUCT_TYPE_FILTERS.map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => { setProductType(f.value); setOffset(0); }}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    productType === f.value
+                      ? 'bg-teal-500/20 text-teal-400'
+                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <div className="w-px h-4 bg-[var(--color-border)]" />
+            <div className="flex items-center gap-1">
+              {VISIBILITY_FILTERS.map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => { setVisibility(f.value); setOffset(0); }}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    visibility === f.value
+                      ? 'bg-teal-500/20 text-teal-400'
+                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* List */}
       <div className="flex-1 overflow-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <RefreshCw className="w-5 h-5 text-[var(--color-text-muted)] animate-spin" />
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 text-[var(--color-text-muted)]">
@@ -162,14 +253,49 @@ export function ArchivedDiscussions() {
                   item={item}
                   onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
                   onDelete={item.source.startsWith('supabase') ? () => setDeleteConfirm(item.id) : undefined}
+                  onExport={item.source.startsWith('supabase') ? () => handleExport(item) : undefined}
                 />
 
                 {/* Expanded detail */}
-                {expandedId === item.id && expandedDetail && (
-                  <div className="mt-1 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-lg p-3 max-h-64 overflow-auto">
-                    <div className="text-xs text-[var(--color-text-muted)] space-y-2">
-                      {renderMessages(expandedDetail.messages || [])}
-                    </div>
+                {expandedId === item.id && (
+                  <div className="mt-1 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-lg p-3 max-h-96 overflow-auto">
+                    {/* Detail header with source link */}
+                    {(() => {
+                      const link = getSourceLink(item);
+                      if (!link) return null;
+                      return (
+                        <div className="flex items-center justify-end mb-2">
+                          {link.comingSoon ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium bg-[var(--color-bg-secondary)] text-[var(--color-text-muted)]">
+                              <ExternalLink className="w-3 h-3" />
+                              {link.label} - Coming Soon
+                            </span>
+                          ) : (
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              {link.label} on jubit.ai
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {detailLoading ? (
+                      <SkeletonDetail />
+                    ) : expandedDetail ? (
+                      <ArchiveDetailRouter
+                        item={item}
+                        detail={{
+                          messages: (expandedDetail.messages || []) as unknown[],
+                          participants: (expandedDetail.participants || []) as unknown[],
+                        }}
+                      />
+                    ) : null}
                   </div>
                 )}
               </div>
@@ -219,23 +345,4 @@ export function ArchivedDiscussions() {
       )}
     </div>
   );
-}
-
-function renderMessages(messages: unknown[]): React.ReactNode {
-  if (!messages || messages.length === 0) {
-    return <p className="italic">No messages to display</p>;
-  }
-
-  return messages.slice(0, 20).map((msg, i) => {
-    const m = msg as Record<string, unknown>;
-    const role = (m.role || m.sender || m.model_name || 'unknown') as string;
-    const content = (m.content || m.text || m.message || '') as string;
-
-    return (
-      <div key={i} className="border-l-2 border-[var(--color-border)] pl-2 py-1">
-        <span className="font-medium text-[var(--color-text-secondary)]">{role}: </span>
-        <span className="text-[var(--color-text-muted)]">{typeof content === 'string' ? content.slice(0, 300) : JSON.stringify(content).slice(0, 300)}</span>
-      </div>
-    );
-  });
 }

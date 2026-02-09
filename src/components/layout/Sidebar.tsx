@@ -12,6 +12,9 @@ import {
   Cpu,
   History,
   Archive,
+  BarChart3,
+  MessageSquare,
+  Users,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -40,10 +43,18 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: 'Jubit AI',
+    items: [
+      { to: '/chatab', icon: MessageSquare, label: 'ChatAB' },
+      { to: '/chatlab', icon: Users, label: 'ChatLab' },
+    ],
+  },
+  {
     label: 'System',
     items: [
       { to: '/history', icon: History, label: 'History' },
       { to: '/archived-discussions', icon: Archive, label: 'Archives' },
+      { to: '/analytics', icon: BarChart3, label: 'Analytics' },
       { to: '/health', icon: Activity, label: 'Health' },
     ],
   },

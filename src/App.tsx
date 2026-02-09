@@ -13,6 +13,9 @@ import { UsageDashboard } from '@/components/stats/UsageDashboard';
 import { ProvidersPage } from '@/components/providers/ProvidersPage';
 import { ConversationHistory } from '@/components/conversations/ConversationHistory';
 import { ArchivedDiscussions } from '@/pages/ArchivedDiscussions';
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
+import { ChatABPage } from '@/pages/ChatABPage';
+import { ChatLabPage } from '@/pages/ChatLabPage';
 import { AuthCallback } from '@/pages/AuthCallback';
 
 const queryClient = new QueryClient({
@@ -43,6 +46,9 @@ export default function App() {
             <Route path="/memory" element={<MemoryManager />} />
             <Route path="/history" element={<ConversationHistory />} />
             <Route path="/archived-discussions" element={<ArchivedDiscussions />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/chatab" element={<ChatABPage />} />
+            <Route path="/chatlab" element={<ChatLabPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>
