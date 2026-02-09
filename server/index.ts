@@ -11,6 +11,7 @@ import systemRoutes from './routes/system.js';
 import providersRoutes from './routes/providers.js';
 import conversationsRoutes from './routes/conversations.js';
 import archivesRoutes from './routes/archives.js';
+import analysisRoutes from './routes/analysis.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/system', systemRoutes);
 app.use('/api/providers', providersRoutes);
 app.use('/api/conversations', conversationsRoutes);
 app.use('/api/archives', archivesRoutes);
+app.use('/api/analysis', analysisRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler

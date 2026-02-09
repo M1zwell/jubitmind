@@ -278,3 +278,23 @@ export interface AnalyticsData {
   totalArchives: number;
   totalLocal: number;
 }
+
+// --- Session Analysis ---
+
+export type AnalysisMode = 'summary' | 'security' | 'quality' | 'patterns' | 'custom';
+
+export interface AnalysisChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  isStreaming?: boolean;
+}
+
+export interface AnalysisPrepareResult {
+  sessionId: string;
+  messageCount: number;
+  estimatedTokens: number;
+  preview: string;
+  truncated: boolean;
+}

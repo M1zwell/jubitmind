@@ -15,6 +15,7 @@ import {
   BarChart3,
   MessageSquare,
   Users,
+  Microscope,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -47,6 +48,12 @@ const NAV_SECTIONS = [
     items: [
       { to: '/chatab', icon: MessageSquare, label: 'ChatAB' },
       { to: '/chatlab', icon: Users, label: 'ChatLab' },
+    ],
+  },
+  {
+    label: 'Analysis',
+    items: [
+      { to: '/analysis', icon: Microscope, label: 'Session Analysis' },
     ],
   },
   {

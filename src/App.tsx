@@ -16,6 +16,7 @@ import { ArchivedDiscussions } from '@/pages/ArchivedDiscussions';
 import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { ChatABPage } from '@/pages/ChatABPage';
 import { ChatLabPage } from '@/pages/ChatLabPage';
+import { SessionAnalysisPage } from '@/pages/SessionAnalysisPage';
 import { AuthCallback } from '@/pages/AuthCallback';
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/chatab" element={<ChatABPage />} />
             <Route path="/chatlab" element={<ChatLabPage />} />
+            <Route path="/analysis" element={<SessionAnalysisPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>

@@ -20,13 +20,24 @@ interface ProviderOptions {
   maxTokens?: number;
 }
 
+interface AnalysisOptions {
+  providerId: string;
+  model: string;
+  sessionId: string;
+  projectSlug?: string;
+  analysisSessionId: string;
+  mode: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
 export function useSSE() {
   const [messages, setMessages] = useState<SSEMessage[]>([]);
   const [status, setStatus] = useState<SSEStatus>('idle');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sourceRef = useRef<EventSource | null>(null);
 
-  const start = useCallback((prompt: string, claudeModel?: string, providerOpts?: ProviderOptions) => {
+  const start = useCallback((prompt: string, claudeModel?: string, providerOpts?: ProviderOptions, analysisOpts?: AnalysisOptions) => {
     // Close any existing connection
     if (sourceRef.current) {
       sourceRef.current.close();
@@ -37,7 +48,21 @@ export function useSSE() {
 
     let url: string;
 
-    if (providerOpts) {
+    if (analysisOpts) {
+      // Analysis streaming mode
+      const params = new URLSearchParams({
+        prompt,
+        providerId: analysisOpts.providerId,
+        model: analysisOpts.model,
+        sessionId: analysisOpts.sessionId,
+        analysisSessionId: analysisOpts.analysisSessionId,
+        mode: analysisOpts.mode,
+      });
+      if (analysisOpts.projectSlug) params.set('projectSlug', analysisOpts.projectSlug);
+      if (analysisOpts.temperature !== undefined) params.set('temperature', String(analysisOpts.temperature));
+      if (analysisOpts.maxTokens) params.set('maxTokens', String(analysisOpts.maxTokens));
+      url = `/api/analysis/stream?${params}`;
+    } else if (providerOpts) {
       // Provider streaming mode
       const params = new URLSearchParams({
         prompt,

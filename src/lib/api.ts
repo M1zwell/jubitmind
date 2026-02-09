@@ -166,6 +166,17 @@ export const api = {
     return request<{ session: unknown }>(`/conversations/cloud/export?${params}`);
   },
 
+  // Analysis
+  analysisPrepare: (body: { sessionId: string; projectSlug?: string }) =>
+    request<import('./types').AnalysisPrepareResult>('/analysis/prepare', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  analysisModels: () =>
+    request<{ providers: Array<{ id: string; name: string; models: import('./types').ProviderModel[] }> }>('/analysis/models'),
+  analysisCancel: () =>
+    request<{ ok: boolean }>('/analysis/stream/cancel', { method: 'POST' }),
+
   // Archives (unified Supabase + local)
   archives: {
     list: (params?: { source?: string; search?: string; limit?: number; offset?: number; productType?: string; visibility?: string }) => {
