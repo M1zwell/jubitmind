@@ -13,6 +13,7 @@ import { UsageDashboard } from '@/components/stats/UsageDashboard';
 import { ProvidersPage } from '@/components/providers/ProvidersPage';
 import { ConversationHistory } from '@/components/conversations/ConversationHistory';
 import { ArchivedDiscussions } from '@/pages/ArchivedDiscussions';
+import { AuthCallback } from '@/pages/AuthCallback';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/terminal" replace />} />
             <Route path="/terminal" element={<CliRunner />} />

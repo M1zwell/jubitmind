@@ -30,9 +30,11 @@ export function useAuth() {
   }, []);
 
   const signIn = useCallback(async (provider: Provider) => {
+    // Store current path so we can return after OAuth
+    sessionStorage.setItem('auth_return_path', window.location.pathname);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) throw error;
   }, []);
