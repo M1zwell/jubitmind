@@ -28,7 +28,7 @@ export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     const client = getClient();
     if (!client) throw new Error('Supabase not configured');
-    return (client as Record<string | symbol, unknown>)[prop];
+    return (client as unknown as Record<string | symbol, unknown>)[prop];
   },
 });
 

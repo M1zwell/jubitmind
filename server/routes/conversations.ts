@@ -42,12 +42,12 @@ router.get('/sessions', async (req, res) => {
 
     if (source === 'dashboard' || source === 'all') {
       const dashSessions = await store.listSessions();
-      sessions.push(...dashSessions);
+      sessions.push(...dashSessions as unknown as Array<Record<string, unknown>>);
     }
 
     if (source === 'claude-code' || source === 'all') {
       const claudeSessions = await claude.listClaudeSessions({ project, limit });
-      sessions.push(...claudeSessions);
+      sessions.push(...claudeSessions as unknown as Array<Record<string, unknown>>);
     }
 
     if (source === 'cloud') {

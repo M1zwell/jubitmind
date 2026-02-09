@@ -14,7 +14,7 @@ import archivesRoutes from './routes/archives.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 app.use(cors({ origin: ['http://127.0.0.1:8081', 'http://localhost:8081', 'http://127.0.0.1:3000'] }));
 app.use(express.json({ limit: '10mb' }));

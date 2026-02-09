@@ -85,7 +85,7 @@ router.get('/commands/tree', async (_req, res) => {
 });
 
 router.get('/commands/*', async (req, res) => {
-  const relativePath = req.params[0];
+  const relativePath = (req.params as unknown as Record<string, string>)[0];
   if (!relativePath) {
     res.status(400).json({ error: 'path is required' });
     return;

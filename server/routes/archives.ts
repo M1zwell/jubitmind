@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { supabase, isSupabaseConfigured } from '../services/supabase.js';
 import { optionalAuth, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
-import { getAllSessions as getLocalSessions } from '../services/session-cache.js';
+import { getAllSessions as getLocalSessions, type CachedSessionMeta } from '../services/session-cache.js';
 
 const router = Router();
 
@@ -131,7 +131,7 @@ router.get('/analytics', optionalAuth, async (req: AuthenticatedRequest, res) =>
     const localSessions = await getLocalSessions();
     result.totalLocal = localSessions.length;
     for (const s of localSessions) {
-      const rl = (s as Record<string, unknown>).riskLevel as string;
+      const rl = s.riskLevel as string | undefined;
       if (rl && rl in result.riskDistribution) {
         result.riskDistribution[rl as keyof typeof result.riskDistribution]++;
       }
@@ -321,7 +321,7 @@ router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res) => {
     const localSession = allLocalSessions.find(s => s.sessionId === id);
     if (localSession) {
       return res.json({
-        item: normalizeLocalSession(localSession),
+        item: normalizeLocalSession(localSession as unknown as Record<string, unknown>),
         source: 'local-claude',
       });
     }
@@ -439,7 +439,7 @@ async function fetchLocalSessions(search: string): Promise<UnifiedArchiveItem[]>
     );
   }
 
-  return filtered.map(normalizeLocalSession);
+  return filtered.map(s => normalizeLocalSession(s as unknown as Record<string, unknown>));
 }
 
 function normalizeRoom(row: Record<string, unknown>): UnifiedArchiveItem {
