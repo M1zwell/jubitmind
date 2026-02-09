@@ -31,11 +31,14 @@ router.get('/plugins/list', (_req, res) => {
   try {
     const output = runCliSync(['plugin', 'list']);
     // Parse plugin list output
-    const plugins = output.split('\n').filter(Boolean).map((line) => {
-      const enabled = !line.includes('disabled');
-      const name = line.replace(/\s*\(.*\)/, '').trim();
-      return { name, enabled };
-    });
+    const plugins = output.split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && /\((enabled|disabled)\)/.test(line))
+      .map((line) => {
+        const enabled = !line.includes('disabled');
+        const name = line.replace(/\s*\(.*\)/, '').trim();
+        return { name, enabled };
+      });
     res.json({ plugins });
   } catch {
     res.json({ plugins: [] });
