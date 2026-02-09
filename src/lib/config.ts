@@ -10,11 +10,11 @@ interface SourceLink {
 }
 
 const SOURCE_URL_MAP: Record<string, (id: string) => SourceLink> = {
-  chat: (id) => ({ url: `${JUBIT_BASE}/theater/archived/${id}`, label: 'Open Chat' }),
-  chatab: () => ({ url: '/chatab', label: 'Open in ChatAB', internal: true }),
-  chatlab: () => ({ url: '/chatlab', label: 'Open in ChatLab', internal: true }),
+  chat: (id) => ({ url: `/chatab?room=${id}&type=chat`, label: 'Open Chat', internal: true }),
+  chatab: (id) => ({ url: `/chatab?room=${id}`, label: 'Open in ChatAB', internal: true }),
+  chatlab: (id) => ({ url: `/chatlab?room=${id}`, label: 'Open in ChatLab', internal: true }),
   'chatlab-agent': () => ({ url: `${JUBIT_BASE}/chatlab/agent`, label: 'Agent', comingSoon: true }),
-  theater: (id) => ({ url: `${JUBIT_BASE}/theater/room/${id}`, label: 'Open Theater' }),
+  theater: (id) => ({ url: `/chatab?room=${id}&type=theater`, label: 'Open Theater', internal: true }),
 };
 
 export function getSourceLink(item: UnifiedArchiveItem): SourceLink | null {

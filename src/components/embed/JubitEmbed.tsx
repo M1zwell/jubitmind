@@ -16,6 +16,10 @@ import type { JubitModule, JubitEmbedCallbacks } from './types';
 
 interface JubitEmbedProps extends JubitEmbedCallbacks {
   module: JubitModule;
+  /** Room/conversation ID to load an existing archive */
+  roomId?: string;
+  /** Override the jubit.ai path (e.g. 'theater/archived' for chat type) */
+  pathOverride?: string;
   height?: string | number;
   initialMessage?: string;
   topic?: string;
@@ -24,6 +28,8 @@ interface JubitEmbedProps extends JubitEmbedCallbacks {
 
 export function JubitEmbed({
   module,
+  roomId,
+  pathOverride,
   height = '100%',
   initialMessage,
   topic,
@@ -88,8 +94,17 @@ export function JubitEmbed({
 
     // Use www.jubit.ai to avoid redirect
     const base = JUBIT_BASE.replace('https://jubit.ai', 'https://www.jubit.ai');
-    return `${base}/${module}?${params.toString()}`;
-  }, [module, initialMessage, topic]);
+
+    // Build path: pathOverride takes priority, then module/roomId, then just module
+    let path: string;
+    if (pathOverride) {
+      path = roomId ? `${pathOverride}/${roomId}` : pathOverride;
+    } else {
+      path = roomId ? `${module}/${roomId}` : module;
+    }
+
+    return `${base}/${path}?${params.toString()}`;
+  }, [module, roomId, pathOverride, initialMessage, topic]);
 
   // Send initial configuration when ready
   useEffect(() => {
@@ -128,7 +143,7 @@ export function JubitEmbed({
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                Loading {module === 'chatab' ? 'Multi-Model Chat' : 'AI Debate Arena'}
+                {roomId ? 'Loading Archive' : `Loading ${module === 'chatab' ? 'Multi-Model Chat' : 'AI Debate Arena'}`}
               </p>
               <p className="text-xs text-[var(--color-text-muted)] mt-1">
                 Powered by jubit.ai
