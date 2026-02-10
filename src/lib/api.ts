@@ -177,6 +177,41 @@ export const api = {
   analysisCancel: () =>
     request<{ ok: boolean }>('/analysis/stream/cancel', { method: 'POST' }),
 
+  // Adapters (AI tool monitoring)
+  adapters: {
+    list: () => request<import('@/hooks/useUnifiedStats').AdapterInfo[]>('/adapters'),
+    sessions: (adapterId: string, options?: { limit?: number; offset?: number; project?: string }) => {
+      const query = new URLSearchParams();
+      if (options?.limit) query.set('limit', String(options.limit));
+      if (options?.offset) query.set('offset', String(options.offset));
+      if (options?.project) query.set('project', options.project);
+      return request<{ sessions: unknown[]; available: boolean }>(`/adapters/${adapterId}/sessions?${query}`);
+    },
+    stats: (adapterId: string) =>
+      request<{ stats: unknown; available: boolean }>(`/adapters/${adapterId}/stats`),
+    unifiedStats: () =>
+      request<import('@/hooks/useUnifiedStats').UnifiedStatsData>('/adapters/stats/unified'),
+  },
+
+  // LiteLLM proxy
+  litellm: {
+    models: () => request<{ models: unknown[]; count: number }>('/litellm/models'),
+    modelsByProvider: () => request<{ providers: unknown[] }>('/litellm/models/by-provider'),
+    spend: () => request<{ spend: unknown; dbConfigured: boolean }>('/litellm/spend'),
+    config: () => request<{ available: boolean; totalModels?: number; providers?: string[] }>('/litellm/config'),
+  },
+
+  // Auditor
+  auditor: {
+    status: () => request<{ running: boolean; lastAudit: string | null; criticalFindings: number; highFindings: number; billingAlert: boolean }>('/auditor/status'),
+    latest: () => request<{ report: import('./types').AuditReport | null }>('/auditor/reports/latest'),
+    history: (limit?: number) => {
+      const query = limit ? `?limit=${limit}` : '';
+      return request<{ reports: import('./types').AuditReport[]; count: number }>(`/auditor/reports${query}`);
+    },
+    run: () => request<{ report: import('./types').AuditReport }>('/auditor/run', { method: 'POST' }),
+  },
+
   // Archives (unified Supabase + local)
   archives: {
     list: (params?: { source?: string; search?: string; limit?: number; offset?: number; productType?: string; visibility?: string }) => {

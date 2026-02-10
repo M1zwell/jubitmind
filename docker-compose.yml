@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  jubitmind:
+    build: .
+    container_name: jubitmind
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CLAUDE_HOME=/data/.claude
+      # Uncomment to connect to LiteLLM PostgreSQL:
+      # - LITELLM_DB_URL=postgresql://user:pass@host.docker.internal:5432/litellm
+    volumes:
+      # Mount Claude Code sessions (read-only)
+      - ~/.claude:/data/.claude:ro
+      # Mount Continue.dev sessions (read-only)
+      - ~/.continue:/data/.continue:ro
+      # Persistent conversation storage
+      - jubitmind-conversations:/app/conversations
+    restart: unless-stopped
+
+volumes:
+  jubitmind-conversations:

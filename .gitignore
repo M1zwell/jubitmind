@@ -1,7 +1,9 @@
 node_modules/
 dist/
+dist-electron/
 providers.json
-conversations/
+/conversations/
+/data/
 *.bak
 *.tmp
 .env

@@ -1,0 +1,45 @@
+appId: ai.jubit.jubitmind
+productName: JubitMind
+copyright: Copyright © 2026 Jubit.ai
+
+directories:
+  buildResources: build
+  output: dist-electron
+
+files:
+  - dist/**/*
+  - electron/**/*.js
+  - package.json
+  - providers.json
+  - node_modules/**/*
+
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch: [universal]
+    - target: zip
+      arch: [universal]
+  darkModeSupport: true
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications

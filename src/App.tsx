@@ -18,6 +18,9 @@ import { ChatABPage } from '@/pages/ChatABPage';
 import { ChatLabPage } from '@/pages/ChatLabPage';
 import { SessionAnalysisPage } from '@/pages/SessionAnalysisPage';
 import { AuthCallback } from '@/pages/AuthCallback';
+import { HomePage } from '@/components/dashboard/HomePage';
+import { RoutingDashboard } from '@/components/litellm/RoutingDashboard';
+import { AuditorPage } from '@/components/auditor/AuditorPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,7 +38,7 @@ export default function App() {
         <Routes>
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route element={<Layout />}>
-            <Route path="/" element={<Navigate to="/terminal" replace />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/terminal" element={<CliRunner />} />
             <Route path="/providers" element={<ProvidersPage />} />
             <Route path="/mcp" element={<McpOverview />} />
@@ -51,6 +54,8 @@ export default function App() {
             <Route path="/chatab" element={<ChatABPage />} />
             <Route path="/chatlab" element={<ChatLabPage />} />
             <Route path="/analysis" element={<SessionAnalysisPage />} />
+            <Route path="/litellm" element={<RoutingDashboard />} />
+            <Route path="/auditor" element={<AuditorPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>

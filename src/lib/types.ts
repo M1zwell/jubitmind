@@ -298,3 +298,34 @@ export interface AnalysisPrepareResult {
   preview: string;
   truncated: boolean;
 }
+
+// --- Auditor ---
+
+export interface AuditReport {
+  id: string;
+  timestamp: string;
+  type: 'scheduled' | 'emergency';
+  duration_ms: number;
+  security: {
+    criticalFindings: number;
+    highFindings: number;
+    sessionsScanned: number;
+    topRisks: Array<{ sessionId: string; risk: string; detail: string }>;
+    newSinceLastAudit: number;
+  };
+  performance: {
+    totalSessions: number;
+    totalSizeBytes: number;
+    largestSession: { id: string; sizeBytes: number };
+    avgSessionSizeBytes: number;
+    sessionsOver10MB: number;
+  };
+  billing: {
+    estimatedCostUsd: number;
+    costChangePercent: number;
+    topModels: Array<{ model: string; tokens: number }>;
+    alert: boolean;
+    alertReason?: string;
+  };
+  recommendations: string[];
+}

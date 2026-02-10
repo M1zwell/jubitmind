@@ -16,13 +16,39 @@ import {
   MessageSquare,
   Users,
   Microscope,
+  LayoutDashboard,
+  Router,
+  ShieldAlert,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
   {
-    label: 'CLI',
+    label: 'Monitor',
     items: [
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/terminal', icon: Terminal, label: 'Terminal' },
+    ],
+  },
+  {
+    label: 'Data & Insights',
+    items: [
+      { to: '/history', icon: History, label: 'History' },
+      { to: '/archived-discussions', icon: Archive, label: 'Archives' },
+      { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/auditor', icon: ShieldAlert, label: 'Auditor' },
+      { to: '/health', icon: Activity, label: 'Health' },
+    ],
+  },
+  {
+    label: 'Analysis',
+    items: [
+      { to: '/analysis', icon: Microscope, label: 'Session Analysis' },
+    ],
+  },
+  {
+    label: 'Routing',
+    items: [
+      { to: '/litellm', icon: Router, label: 'LiteLLM' },
     ],
   },
   {
@@ -48,21 +74,6 @@ const NAV_SECTIONS = [
     items: [
       { to: '/chatab', icon: MessageSquare, label: 'ChatAB' },
       { to: '/chatlab', icon: Users, label: 'ChatLab' },
-    ],
-  },
-  {
-    label: 'Analysis',
-    items: [
-      { to: '/analysis', icon: Microscope, label: 'Session Analysis' },
-    ],
-  },
-  {
-    label: 'System',
-    items: [
-      { to: '/history', icon: History, label: 'History' },
-      { to: '/archived-discussions', icon: Archive, label: 'Archives' },
-      { to: '/analytics', icon: BarChart3, label: 'Analytics' },
-      { to: '/health', icon: Activity, label: 'Health' },
     ],
   },
 ];
@@ -92,6 +103,7 @@ export function Sidebar() {
               <NavLink
                 key={item.to}
                 to={item.to}
+                end={item.to === '/'}
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-4 py-1.5 mx-2 rounded text-xs font-medium transition-colors ${
                     isActive
