@@ -1,0 +1,43 @@
+JubitMind
+Copyright 2025-2026 Jubit AI (jubit.ai)
+
+This product includes software developed by Jubit AI (https://jubit.ai).
+
+Licensed under the Apache License, Version 2.0.
+
+================================================================================
+
+TRADEMARK NOTICE
+
+The following names and brands are trademarks of Jubit AI and are NOT covered
+by the Apache 2.0 license. See TRADEMARKS.md for the full trademark policy.
+
+  - "Jubit" and "Jubit AI"
+  - "JubitMind"
+  - "ChatAB"
+  - "ChatLab"
+  - The Jubit logo and associated brand assets
+
+You may use these names only to give credit to the original project (e.g.,
+"based on JubitMind" or "powered by Jubit AI"). You may NOT use these names
+to brand or market your own derivative product without prior written permission
+from Jubit AI.
+
+================================================================================
+
+THIRD-PARTY NOTICES
+
+This software uses the following open-source libraries:
+
+  - React (MIT License) - Copyright Meta Platforms, Inc.
+  - Vite (MIT License) - Copyright Evan You
+  - Express (MIT License) - Copyright TJ Holowaychuk & contributors
+  - Tailwind CSS (MIT License) - Copyright Tailwind Labs, Inc.
+  - Lucide Icons (ISC License) - Copyright Lucide contributors
+  - Monaco Editor (MIT License) - Copyright Microsoft Corporation
+  - Recharts (MIT License) - Copyright recharts contributors
+  - Electron (MIT License) - Copyright GitHub Inc.
+  - TanStack Query (MIT License) - Copyright Tanner Linsley
+
+Full license texts for dependencies are available in their respective
+node_modules directories.

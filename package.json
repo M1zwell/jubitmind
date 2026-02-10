@@ -3,8 +3,14 @@
   "version": "1.1.0",
   "private": true,
   "type": "module",
+  "license": "Apache-2.0",
   "description": "Local AI Interaction Monitor & Audit Tool",
-  "author": "Jubit.ai",
+  "author": "Jubit AI (https://jubit.ai)",
+  "homepage": "https://github.com/M1zwell/jubitmind",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/M1zwell/jubitmind.git"
+  },
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
