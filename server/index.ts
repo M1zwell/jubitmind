@@ -64,7 +64,7 @@ app.use(errorHandler);
 
 // Production: serve Vite build output as static files + SPA fallback
 if (IS_PROD) {
-  const clientDir = path.resolve(__dirname, '..', 'client');
+  const clientDir = path.resolve(__dirname, '..', 'dist', 'client');
   app.use(express.static(clientDir));
   app.get('*', (_req, res) => {
     res.sendFile(path.join(clientDir, 'index.html'));
