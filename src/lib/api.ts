@@ -212,6 +212,13 @@ export const api = {
     run: () => request<{ report: import('./types').AuditReport }>('/auditor/run', { method: 'POST' }),
   },
 
+  // Agent Configs
+  agentConfigs: {
+    list: () => request<{ configs: unknown[] }>('/agent-configs'),
+    audit: () => request<{ configs: unknown[]; summary: unknown }>('/agent-configs/audit'),
+    get: (id: string) => request<{ config: unknown }>(`/agent-configs/${id}`),
+  },
+
   // Archives (unified Supabase + local)
   archives: {
     list: (params?: { source?: string; search?: string; limit?: number; offset?: number; productType?: string; visibility?: string }) => {

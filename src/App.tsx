@@ -21,6 +21,7 @@ import { AuthCallback } from '@/pages/AuthCallback';
 import { HomePage } from '@/components/dashboard/HomePage';
 import { RoutingDashboard } from '@/components/litellm/RoutingDashboard';
 import { AuditorPage } from '@/components/auditor/AuditorPage';
+import { AgentConfigsPage } from '@/components/config/AgentConfigsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/analysis" element={<SessionAnalysisPage />} />
             <Route path="/litellm" element={<RoutingDashboard />} />
             <Route path="/auditor" element={<AuditorPage />} />
+            <Route path="/agent-configs" element={<AgentConfigsPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>

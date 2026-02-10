@@ -17,6 +17,7 @@ import analysisRoutes from './routes/analysis.js';
 import adapterRoutes from './routes/adapters.js';
 import litellmRoutes from './routes/litellm.js';
 import auditorRoutes from './routes/auditor.js';
+import agentConfigRoutes from './routes/agent-configs.js';
 import { initAdapters } from './services/adapters/index.js';
 import { startAuditor } from './services/auditor-agent.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -48,6 +49,7 @@ app.use('/api/analysis', analysisRoutes);
 app.use('/api/adapters', adapterRoutes);
 app.use('/api/litellm', litellmRoutes);
 app.use('/api/auditor', auditorRoutes);
+app.use('/api/agent-configs', agentConfigRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler

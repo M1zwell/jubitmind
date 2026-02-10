@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Router,
   ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -57,6 +58,7 @@ const NAV_SECTIONS = [
       { to: '/providers', icon: Cpu, label: 'AI Providers' },
       { to: '/mcp', icon: Server, label: 'MCP Servers' },
       { to: '/permissions', icon: Shield, label: 'Permissions' },
+      { to: '/agent-configs', icon: ShieldCheck, label: 'Agent Configs' },
       { to: '/settings', icon: Settings, label: 'Settings' },
       { to: '/claude-md', icon: FileText, label: 'CLAUDE.md' },
     ],
