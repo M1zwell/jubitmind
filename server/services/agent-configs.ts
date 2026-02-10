@@ -333,6 +333,45 @@ export async function getConfigById(id: string): Promise<AgentConfigFile | null>
 }
 
 /**
+ * Save content to a config file. Creates parent directories if needed.
+ * Returns the updated config with fresh audit.
+ */
+export async function saveConfig(id: string, content: string): Promise<AgentConfigFile> {
+  const def = CONFIG_DEFS.find((d) => d.id === id);
+  if (!def) throw new Error(`Unknown config id: ${id}`);
+
+  const projectRoot = PATHS.projectRoot || process.cwd();
+  const homeDir = os.homedir();
+  const basePath = def.scope === 'project' ? projectRoot : homeDir;
+
+  // Try to find existing file first, otherwise use the first candidate path
+  const resolved = await resolveFile(basePath, def.paths);
+  const targetPath = resolved?.path || path.join(basePath, def.paths[0]);
+
+  // Ensure parent directory exists
+  await fsp.mkdir(path.dirname(targetPath), { recursive: true });
+
+  // Write the file
+  await fsp.writeFile(targetPath, content, 'utf-8');
+
+  // Return updated config with fresh audit
+  const stat = await fsp.stat(targetPath);
+  return {
+    id: def.id,
+    name: def.name,
+    tool: def.tool,
+    format: def.format,
+    scope: def.scope,
+    path: targetPath,
+    exists: true,
+    sizeBytes: Number(stat.size),
+    lastModified: stat.mtime.toISOString(),
+    content,
+    audit: auditContent(content, def.format),
+  };
+}
+
+/**
  * Run audit across all discovered configs and return summary.
  */
 export async function auditAllConfigs(): Promise<{

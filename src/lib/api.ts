@@ -217,6 +217,11 @@ export const api = {
     list: () => request<{ configs: unknown[] }>('/agent-configs'),
     audit: () => request<{ configs: unknown[]; summary: unknown }>('/agent-configs/audit'),
     get: (id: string) => request<{ config: unknown }>(`/agent-configs/${id}`),
+    save: (id: string, content: string) =>
+      request<{ ok: boolean; config: unknown }>(`/agent-configs/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ content }),
+      }),
   },
 
   // Archives (unified Supabase + local)

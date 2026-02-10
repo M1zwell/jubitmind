@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Editor from '@monaco-editor/react';
 import {
   FileText,
   ShieldCheck,
@@ -7,12 +8,16 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Eye,
   ChevronDown,
   ChevronRight,
   Folder,
   User,
   RefreshCw,
+  Save,
+  RotateCcw,
+  Pencil,
+  Plus,
+  X,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -71,6 +76,22 @@ const SEVERITY_COLORS: Record<string, { bg: string; text: string; border: string
   low: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/30' },
 };
 
+const FORMAT_LANGUAGE: Record<string, string> = {
+  md: 'markdown',
+  json: 'json',
+  yaml: 'yaml',
+  toml: 'toml',
+  txt: 'plaintext',
+};
+
+const TEMPLATE_CONTENT: Record<string, string> = {
+  md: '# Agent Instructions\n\n## Overview\n\nDescribe the project context and goals.\n\n## Guidelines\n\n- Follow existing code patterns\n- Write clear commit messages\n- Test before committing\n',
+  json: '{\n  \n}\n',
+  yaml: '# Configuration\n\n',
+  toml: '# Configuration\n\n',
+  txt: '',
+};
+
 function SeverityBadge({ severity }: { severity: string }) {
   const c = SEVERITY_COLORS[severity] || SEVERITY_COLORS.low;
   return (
@@ -86,66 +107,204 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-function ConfigDetailView({ config }: { config: AgentConfigFile }) {
-  const [showContent, setShowContent] = useState(false);
-  const { audit, content } = config;
+// ---------------------------------------------------------------------------
+// Audit panel (shown alongside editor)
+// ---------------------------------------------------------------------------
 
+function AuditPanel({ audit }: { audit: ConfigAudit }) {
   return (
-    <div className="space-y-3">
-      {/* Audit results */}
-      {audit && (
-        <div className="space-y-2">
-          {audit.risks.length > 0 && (
-            <div className="space-y-1">
-              {audit.risks.map((risk, i) => {
-                const c = SEVERITY_COLORS[risk.severity];
-                return (
-                  <div key={i} className={`flex items-start gap-2 px-3 py-1.5 rounded border ${c.bg} ${c.border}`}>
-                    <SeverityBadge severity={risk.severity} />
-                    <span className={`text-[10px] ${c.text} flex-1`}>{risk.message}</span>
-                    {risk.line && <span className="text-[9px] text-[var(--color-text-muted)] font-mono">L{risk.line}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {audit.warnings.map((w, i) => (
-            <div key={`w-${i}`} className="flex items-center gap-2 px-3 py-1.5 rounded bg-amber-500/10 border border-amber-500/20">
-              <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0" />
-              <span className="text-[10px] text-amber-400">{w}</span>
-            </div>
-          ))}
-          {audit.info.map((info, i) => (
-            <div key={`i-${i}`} className="flex items-center gap-2 px-3 py-1.5 rounded bg-[var(--color-bg-tertiary)]">
-              <CheckCircle2 className="w-3 h-3 text-green-400 flex-shrink-0" />
-              <span className="text-[10px] text-[var(--color-text-muted)]">{info}</span>
-            </div>
-          ))}
+    <div className="space-y-1.5 overflow-y-auto max-h-full">
+      {audit.risks.map((risk, i) => {
+        const c = SEVERITY_COLORS[risk.severity];
+        return (
+          <div key={i} className={`flex items-start gap-2 px-2 py-1 rounded border ${c.bg} ${c.border}`}>
+            <SeverityBadge severity={risk.severity} />
+            <span className={`text-[9px] ${c.text} flex-1`}>{risk.message}</span>
+            {risk.line && <span className="text-[8px] text-[var(--color-text-muted)] font-mono">L{risk.line}</span>}
+          </div>
+        );
+      })}
+      {audit.warnings.map((w, i) => (
+        <div key={`w-${i}`} className="flex items-center gap-2 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20">
+          <AlertTriangle className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+          <span className="text-[9px] text-amber-400">{w}</span>
         </div>
-      )}
-
-      {/* Content viewer */}
-      {content && (
-        <div>
-          <button
-            onClick={() => setShowContent(!showContent)}
-            className="flex items-center gap-1.5 text-[10px] text-teal-400 hover:text-teal-300 transition-colors"
-          >
-            <Eye className="w-3 h-3" />
-            {showContent ? 'Hide' : 'View'} content ({content.split('\n').length} lines)
-          </button>
-          {showContent && (
-            <pre className="mt-2 p-3 rounded bg-[var(--color-bg-primary)] border border-[var(--color-border)] text-[9px] text-[var(--color-text-secondary)] font-mono overflow-x-auto max-h-[400px] overflow-y-auto whitespace-pre-wrap break-words leading-relaxed">
-              {content}
-            </pre>
-          )}
+      ))}
+      {audit.info.map((info, i) => (
+        <div key={`i-${i}`} className="flex items-center gap-2 px-2 py-1 rounded bg-[var(--color-bg-tertiary)]">
+          <CheckCircle2 className="w-2.5 h-2.5 text-green-400 flex-shrink-0" />
+          <span className="text-[9px] text-[var(--color-text-muted)]">{info}</span>
         </div>
+      ))}
+      {audit.risks.length === 0 && audit.warnings.length === 0 && audit.info.length === 0 && (
+        <div className="text-[9px] text-[var(--color-text-muted)] text-center py-2">No issues</div>
       )}
     </div>
   );
 }
 
-function ConfigCard({ config, onSelect, isSelected }: { config: AgentConfigFile; onSelect: () => void; isSelected: boolean }) {
+// ---------------------------------------------------------------------------
+// Config editor (full panel with Monaco + audit sidebar)
+// ---------------------------------------------------------------------------
+
+function ConfigEditor({
+  config,
+  onClose,
+  onSaved,
+}: {
+  config: AgentConfigFile;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [content, setContent] = useState(config.content || TEMPLATE_CONTENT[config.format] || '');
+  const [originalContent] = useState(config.content || '');
+  const [hasChanges, setHasChanges] = useState(!config.exists);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const saveMutation = useMutation({
+    mutationFn: (newContent: string) => api.agentConfigs.save(config.id, newContent),
+    onSuccess: () => {
+      setSaveStatus('saved');
+      setHasChanges(false);
+      setTimeout(() => setSaveStatus('idle'), 2000);
+      onSaved();
+    },
+    onError: () => {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    },
+  });
+
+  const handleChange = useCallback((value: string | undefined) => {
+    const v = value || '';
+    setContent(v);
+    setHasChanges(v !== originalContent);
+  }, [originalContent]);
+
+  const handleSave = () => {
+    setSaveStatus('saving');
+    saveMutation.mutate(content);
+  };
+
+  const handleReset = () => {
+    setContent(originalContent);
+    setHasChanges(false);
+  };
+
+  // Keyboard shortcut: Ctrl/Cmd+S
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (hasChanges) handleSave();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+
+  const language = FORMAT_LANGUAGE[config.format] || 'plaintext';
+  const audit = config.audit;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Editor toolbar */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--color-border)] flex-shrink-0 bg-[var(--color-bg-secondary)]">
+        <div className="flex items-center gap-2">
+          <FileText className={`w-3.5 h-3.5 ${TOOL_COLORS[config.tool] || 'text-gray-400'}`} />
+          <span className="text-xs font-medium text-[var(--color-text-primary)]">{config.name}</span>
+          <span className={`text-[9px] px-1.5 py-0.5 rounded ${TOOL_COLORS[config.tool] || 'text-gray-400'} bg-[var(--color-bg-tertiary)]`}>
+            {config.tool}
+          </span>
+          {!config.exists && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400">new file</span>
+          )}
+          {hasChanges && <span className="text-[9px] text-yellow-400">unsaved</span>}
+          {saveStatus === 'saved' && <span className="text-[9px] text-green-400">saved</span>}
+          {saveStatus === 'error' && <span className="text-[9px] text-red-400">save failed</span>}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[8px] text-[var(--color-text-muted)] font-mono mr-2">{config.path}</span>
+          <button
+            onClick={handleReset}
+            disabled={!hasChanges}
+            title="Revert changes"
+            className="p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors disabled:opacity-30"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!hasChanges || saveMutation.isPending}
+            title="Save (Cmd+S)"
+            className="flex items-center gap-1 px-2 py-1 text-[10px] bg-teal-500/20 text-teal-400 rounded hover:bg-teal-500/30 transition-colors disabled:opacity-30"
+          >
+            <Save className="w-3 h-3" />
+            Save
+          </button>
+          <button
+            onClick={onClose}
+            title="Close editor"
+            className="p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Editor + Audit panel */}
+      <div className="flex-1 min-h-0 flex">
+        {/* Monaco editor */}
+        <div className="flex-1 min-w-0">
+          <Editor
+            height="100%"
+            language={language}
+            value={content}
+            onChange={handleChange}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 12,
+              lineNumbers: 'on',
+              wordWrap: 'on',
+              scrollBeyondLastLine: false,
+              padding: { top: 8 },
+              renderWhitespace: 'selection',
+              tabSize: 2,
+            }}
+          />
+        </div>
+
+        {/* Audit sidebar */}
+        {audit && (audit.risks.length > 0 || audit.warnings.length > 0 || audit.info.length > 0) && (
+          <div className="w-64 flex-shrink-0 border-l border-[var(--color-border)] bg-[var(--color-bg-secondary)] p-2 overflow-y-auto">
+            <div className="flex items-center gap-1.5 mb-2">
+              <ShieldAlert className="w-3 h-3 text-[var(--color-text-muted)]" />
+              <span className="text-[9px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Audit</span>
+            </div>
+            <AuditPanel audit={audit} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Config list card
+// ---------------------------------------------------------------------------
+
+function ConfigCard({
+  config,
+  isSelected,
+  onSelect,
+  onEdit,
+}: {
+  config: AgentConfigFile;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+}) {
   const hasRisks = config.audit && config.audit.risks.length > 0;
   const criticalCount = config.audit?.risks.filter((r) => r.severity === 'critical').length || 0;
   const highCount = config.audit?.risks.filter((r) => r.severity === 'high').length || 0;
@@ -154,72 +313,88 @@ function ConfigCard({ config, onSelect, isSelected }: { config: AgentConfigFile;
     <div className={`border rounded-lg overflow-hidden transition-colors ${
       isSelected ? 'border-teal-500/50' : hasRisks ? (criticalCount > 0 ? 'border-red-500/30' : 'border-orange-500/30') : 'border-[var(--color-border)]'
     }`}>
-      <button
-        onClick={onSelect}
-        className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-tertiary)] transition-colors text-left"
-      >
-        <div className="flex-shrink-0">
-          {isSelected ? <ChevronDown className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> : <ChevronRight className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />}
-        </div>
-        <div className="flex-shrink-0">
-          {config.exists ? (
-            <FileText className={`w-4 h-4 ${TOOL_COLORS[config.tool] || 'text-gray-400'}`} />
-          ) : (
-            <XCircle className="w-4 h-4 text-[var(--color-text-muted)] opacity-40" />
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-medium ${config.exists ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] opacity-60'}`}>
-              {config.name}
-            </span>
-            <span className={`text-[9px] px-1.5 py-0.5 rounded ${TOOL_COLORS[config.tool] || 'text-gray-400'} bg-[var(--color-bg-tertiary)]`}>
-              {config.tool}
-            </span>
-            <span className="text-[8px] text-[var(--color-text-muted)] px-1 py-0.5 rounded bg-[var(--color-bg-tertiary)]">
-              .{config.format}
-            </span>
+      <div className="flex items-center gap-3 px-4 py-3 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-tertiary)] transition-colors">
+        <button onClick={onSelect} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+          <div className="flex-shrink-0">
+            {isSelected ? <ChevronDown className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> : <ChevronRight className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />}
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            {config.scope === 'project' ? (
-              <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-0.5"><Folder className="w-2.5 h-2.5" /> project</span>
+          <div className="flex-shrink-0">
+            {config.exists ? (
+              <FileText className={`w-4 h-4 ${TOOL_COLORS[config.tool] || 'text-gray-400'}`} />
             ) : (
-              <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-0.5"><User className="w-2.5 h-2.5" /> user</span>
-            )}
-            {config.exists && (
-              <>
-                <span className="text-[9px] text-[var(--color-text-muted)]">{formatSize(config.sizeBytes)}</span>
-                {config.lastModified && (
-                  <span className="text-[9px] text-[var(--color-text-muted)]">
-                    {new Date(config.lastModified).toLocaleDateString()}
-                  </span>
-                )}
-              </>
+              <XCircle className="w-4 h-4 text-[var(--color-text-muted)] opacity-40" />
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {!config.exists && (
-            <span className="text-[9px] text-[var(--color-text-muted)] opacity-50">not found</span>
-          )}
-          {criticalCount > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">{criticalCount} critical</span>}
-          {highCount > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">{highCount} high</span>}
-          {config.exists && !hasRisks && config.audit && (
-            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-          )}
-        </div>
-      </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-medium ${config.exists ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] opacity-60'}`}>
+                {config.name}
+              </span>
+              <span className={`text-[9px] px-1.5 py-0.5 rounded ${TOOL_COLORS[config.tool] || 'text-gray-400'} bg-[var(--color-bg-tertiary)]`}>
+                {config.tool}
+              </span>
+              <span className="text-[8px] text-[var(--color-text-muted)] px-1 py-0.5 rounded bg-[var(--color-bg-tertiary)]">
+                .{config.format}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
+              {config.scope === 'project' ? (
+                <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-0.5"><Folder className="w-2.5 h-2.5" /> project</span>
+              ) : (
+                <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-0.5"><User className="w-2.5 h-2.5" /> user</span>
+              )}
+              {config.exists && (
+                <>
+                  <span className="text-[9px] text-[var(--color-text-muted)]">{formatSize(config.sizeBytes)}</span>
+                  {config.lastModified && (
+                    <span className="text-[9px] text-[var(--color-text-muted)]">
+                      {new Date(config.lastModified).toLocaleDateString()}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {!config.exists && (
+              <span className="text-[9px] text-[var(--color-text-muted)] opacity-50">not found</span>
+            )}
+            {criticalCount > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">{criticalCount} critical</span>}
+            {highCount > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">{highCount} high</span>}
+            {config.exists && !hasRisks && config.audit && (
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+            )}
+          </div>
+        </button>
+        {/* Edit / Create button */}
+        <button
+          onClick={onEdit}
+          title={config.exists ? 'Edit' : 'Create'}
+          className="flex items-center gap-1 px-2 py-1 text-[10px] rounded transition-colors flex-shrink-0 bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] hover:text-teal-400 hover:bg-teal-500/10"
+        >
+          {config.exists ? <Pencil className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+          {config.exists ? 'Edit' : 'Create'}
+        </button>
+      </div>
+
+      {/* Expanded audit preview (not editing) */}
       {isSelected && config.exists && config.audit && (
         <div className="px-4 py-3 border-t border-[var(--color-border)]">
-          <ConfigDetailView config={config} />
+          <AuditPanel audit={config.audit} />
         </div>
       )}
     </div>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
+
 export function AgentConfigsPage() {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editingConfig, setEditingConfig] = useState<AgentConfigFile | null>(null);
   const [showMissing, setShowMissing] = useState(false);
 
   const { data, isLoading, refetch, isFetching } = useQuery({
@@ -231,10 +406,33 @@ export function AgentConfigsPage() {
   const summary = data?.summary as AuditSummary | undefined;
 
   const filtered = showMissing ? configs : configs.filter((c) => c.exists);
-
-  // Group by scope
   const projectConfigs = filtered.filter((c) => c.scope === 'project');
   const userConfigs = filtered.filter((c) => c.scope === 'user');
+
+  const handleEdit = (config: AgentConfigFile) => {
+    setEditingConfig(config);
+  };
+
+  const handleEditorClose = () => {
+    setEditingConfig(null);
+  };
+
+  const handleSaved = () => {
+    queryClient.invalidateQueries({ queryKey: ['agent-configs'] });
+  };
+
+  // If editing, show full-screen editor
+  if (editingConfig) {
+    return (
+      <div className="flex flex-col h-full">
+        <ConfigEditor
+          config={editingConfig}
+          onClose={handleEditorClose}
+          onSaved={handleSaved}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -320,6 +518,7 @@ export function AgentConfigsPage() {
                   config={c}
                   isSelected={selectedId === c.id}
                   onSelect={() => setSelectedId(selectedId === c.id ? null : c.id)}
+                  onEdit={() => handleEdit(c)}
                 />
               ))}
             </div>
@@ -339,6 +538,7 @@ export function AgentConfigsPage() {
                   config={c}
                   isSelected={selectedId === c.id}
                   onSelect={() => setSelectedId(selectedId === c.id ? null : c.id)}
+                  onEdit={() => handleEdit(c)}
                 />
               ))}
             </div>
@@ -349,7 +549,7 @@ export function AgentConfigsPage() {
           <div className="text-center py-12 space-y-2">
             <ShieldAlert className="w-8 h-8 text-[var(--color-text-muted)] mx-auto opacity-50" />
             <p className="text-xs text-[var(--color-text-muted)]">
-              No agent config files found. Click "Show missing" to see all supported formats.
+              No agent config files found. Click "Show missing" to see all supported formats and create new ones.
             </p>
           </div>
         )}

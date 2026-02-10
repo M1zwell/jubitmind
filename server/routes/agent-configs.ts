@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { discoverConfigs, getConfigById, auditAllConfigs } from '../services/agent-configs.js';
+import { discoverConfigs, getConfigById, auditAllConfigs, saveConfig } from '../services/agent-configs.js';
 
 const router = Router();
 
@@ -31,6 +31,20 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Config not found' });
     }
     res.json({ config });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// PUT /api/agent-configs/:id — save/create config file
+router.put('/:id', async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (typeof content !== 'string') {
+      return res.status(400).json({ error: 'content (string) is required' });
+    }
+    const config = await saveConfig(String(req.params.id), content);
+    res.json({ ok: true, config });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
