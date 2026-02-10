@@ -22,7 +22,7 @@ import explorerRoutes from './routes/explorer.js';
 import insightsRoutes from './routes/insights.js';
 import { initAdapters } from './services/adapters/index.js';
 import { startAuditor } from './services/auditor-agent.js';
-import { classifyPendingSessions } from './services/session-cache.js';
+import { classifyPendingSessions, refreshAll } from './services/session-cache.js';
 import { buildInteractionIndex } from './services/interaction-index.js';
 import { startInsightsAgent } from './services/insights-agent.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -75,8 +75,9 @@ app.listen(PORT, '127.0.0.1', () => {
   console.log(`[JubitMind] Running on http://127.0.0.1:${PORT}${IS_PROD ? ' (production)' : ' (development)'}`);
   startAuditor();
 
-  // Background: classify all sessions, build index, then start insights (non-blocking)
+  // Background: populate cache, classify, build index, then start insights
   setTimeout(async () => {
+    await refreshAll();
     await classifyPendingSessions();
     await buildInteractionIndex();
     startInsightsAgent();

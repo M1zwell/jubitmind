@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Lightbulb, Play, Clock, TrendingUp, Wrench, Cpu, MessageSquare, ChevronDown, ChevronRight } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Lightbulb, Play, Clock, TrendingUp, Wrench, Cpu, MessageSquare, ChevronDown, ChevronRight, Download, FileText, Image, FileDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Cell } from 'recharts';
 import { useLatestInsight, useInsightHistory, useRunInsights } from '@/hooks/useInsights';
+import { exportInsightsMarkdown, exportInsightsPdf, exportInsightsPng } from '@/lib/export-insights';
 import type { InsightReport } from '@/lib/types';
 
 const RISK_COLORS: Record<string, string> = {
@@ -208,10 +209,78 @@ function ReportHistoryItem({ report }: { report: InsightReport }) {
   );
 }
 
+function ExportDropdown({ report, contentRef }: { report: InsightReport; contentRef: React.RefObject<HTMLDivElement | null> }) {
+  const [open, setOpen] = useState(false);
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const handleExport = async (format: 'md' | 'pdf' | 'png') => {
+    setOpen(false);
+    if (format === 'md') {
+      exportInsightsMarkdown(report);
+      return;
+    }
+    if (!contentRef.current) return;
+    setExporting(format);
+    try {
+      if (format === 'pdf') {
+        await exportInsightsPdf(contentRef.current, report);
+      } else {
+        await exportInsightsPng(contentRef.current, report);
+      }
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        disabled={!!exporting}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] rounded hover:bg-[var(--color-bg-secondary)] transition-colors disabled:opacity-50"
+      >
+        <Download className="w-3 h-3" />
+        {exporting ? `Exporting ${exporting.toUpperCase()}...` : 'Export'}
+        <ChevronDown className="w-3 h-3" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-1 z-20 w-44 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded shadow-lg py-1">
+            <button
+              onClick={() => handleExport('md')}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              Export as Markdown
+            </button>
+            <button
+              onClick={() => handleExport('pdf')}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              Export as PDF
+            </button>
+            <button
+              onClick={() => handleExport('png')}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+            >
+              <Image className="w-3.5 h-3.5" />
+              Export as PNG
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function InsightsPage() {
   const { data: latestData, isLoading: latestLoading } = useLatestInsight();
   const { data: historyData } = useInsightHistory(10);
   const runInsights = useRunInsights();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const report = latestData?.report;
 
@@ -229,14 +298,17 @@ export function InsightsPage() {
             </span>
           )}
         </div>
-        <button
-          onClick={() => runInsights.mutate()}
-          disabled={runInsights.isPending}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-teal-500/20 text-teal-400 rounded hover:bg-teal-500/30 transition-colors disabled:opacity-50"
-        >
-          <Play className="w-3 h-3" />
-          {runInsights.isPending ? 'Running...' : 'Run Now'}
-        </button>
+        <div className="flex items-center gap-2">
+          {report && <ExportDropdown report={report} contentRef={contentRef} />}
+          <button
+            onClick={() => runInsights.mutate()}
+            disabled={runInsights.isPending}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-teal-500/20 text-teal-400 rounded hover:bg-teal-500/30 transition-colors disabled:opacity-50"
+          >
+            <Play className="w-3 h-3" />
+            {runInsights.isPending ? 'Running...' : 'Run Now'}
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -255,30 +327,33 @@ export function InsightsPage() {
           </div>
         ) : (
           <>
-            {/* Three card grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <PromptPatternsCard data={report.promptPatterns} />
-              <ToolUsageCard data={report.toolUsageTrends} />
-              <ModelComparisonCard data={report.modelComparison} />
-            </div>
-
-            {/* Recommendations */}
-            {report.recommendations.length > 0 && (
-              <div className="border border-[var(--color-border)] rounded bg-[var(--color-bg-secondary)] p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-green-400" />
-                  <h3 className="text-xs font-semibold text-[var(--color-text-primary)]">Recommendations</h3>
-                </div>
-                <ul className="space-y-1.5">
-                  {report.recommendations.map((rec, i) => (
-                    <li key={i} className="text-[11px] text-[var(--color-text-secondary)] flex items-start gap-2">
-                      <span className="text-teal-400 flex-shrink-0 mt-0.5">-</span>
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
+            {/* Exportable content area */}
+            <div ref={contentRef} className="space-y-3">
+              {/* Three card grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <PromptPatternsCard data={report.promptPatterns} />
+                <ToolUsageCard data={report.toolUsageTrends} />
+                <ModelComparisonCard data={report.modelComparison} />
               </div>
-            )}
+
+              {/* Recommendations */}
+              {report.recommendations.length > 0 && (
+                <div className="border border-[var(--color-border)] rounded bg-[var(--color-bg-secondary)] p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-4 h-4 text-green-400" />
+                    <h3 className="text-xs font-semibold text-[var(--color-text-primary)]">Recommendations</h3>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {report.recommendations.map((rec, i) => (
+                      <li key={i} className="text-[11px] text-[var(--color-text-secondary)] flex items-start gap-2">
+                        <span className="text-teal-400 flex-shrink-0 mt-0.5">-</span>
+                        {rec}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
 
             {/* Report History */}
             {historyData && historyData.reports.length > 1 && (
