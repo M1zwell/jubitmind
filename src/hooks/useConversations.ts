@@ -14,9 +14,10 @@ export function useConversationSessions(
   project?: string,
   minRisk?: string,
   tags?: string[],
+  filters?: { model?: string[]; tools?: string[]; category?: string; hasThinking?: boolean },
 ) {
   return useQuery({
-    queryKey: ['conversation-sessions', source, project, minRisk, tags],
+    queryKey: ['conversation-sessions', source, project, minRisk, tags, filters],
     queryFn: () =>
       api.conversationSessions({
         source: source || 'all',
@@ -24,9 +25,27 @@ export function useConversationSessions(
         limit: 200,
         minRisk,
         tags,
+        ...filters,
       }),
     staleTime: 10_000,
     refetchInterval: 10_000,
+  });
+}
+
+export function useConversationFacets() {
+  return useQuery({
+    queryKey: ['conversation-facets'],
+    queryFn: api.conversationFacets,
+    staleTime: 30_000,
+  });
+}
+
+export function useClassificationStatus() {
+  return useQuery({
+    queryKey: ['classification-status'],
+    queryFn: api.classificationStatus,
+    staleTime: 10_000,
+    refetchInterval: 15_000,
   });
 }
 

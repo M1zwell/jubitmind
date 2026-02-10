@@ -99,15 +99,31 @@ export const api = {
     request<{ projects: import('./types').ProjectInfo[] }>('/conversations/projects'),
 
   // Conversations
-  conversationSessions: (params?: { source?: string; project?: string; limit?: number; minRisk?: string; tags?: string[] }) => {
+  conversationSessions: (params?: {
+    source?: string; project?: string; limit?: number; minRisk?: string; tags?: string[];
+    model?: string[]; tools?: string[]; category?: string; hasThinking?: boolean;
+  }) => {
     const query = new URLSearchParams();
     if (params?.source) query.set('source', params.source);
     if (params?.project) query.set('project', params.project);
     if (params?.limit) query.set('limit', String(params.limit));
     if (params?.minRisk) query.set('minRisk', params.minRisk);
     if (params?.tags?.length) query.set('tags', params.tags.join(','));
+    if (params?.model?.length) query.set('model', params.model.join(','));
+    if (params?.tools?.length) query.set('tools', params.tools.join(','));
+    if (params?.category) query.set('category', params.category);
+    if (params?.hasThinking) query.set('hasThinking', 'true');
     return request<{ sessions: unknown[]; total: number }>(`/conversations/sessions?${query}`);
   },
+  conversationFacets: () =>
+    request<{
+      models: Array<{ family: string; count: number }>;
+      tools: Array<{ name: string; count: number }>;
+      categories: Array<{ name: string; count: number }>;
+      thinkingSessions: number;
+    }>('/conversations/facets'),
+  classificationStatus: () =>
+    request<{ total: number; classified: number; pending: number; running: boolean }>('/conversations/classification-status'),
   conversationMessages: (sessionId: string, offset = 0, limit = 50, project?: string) => {
     const params = new URLSearchParams({
       offset: String(offset),
@@ -222,6 +238,46 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify({ content }),
       }),
+  },
+
+  // Explorer (cross-session interaction browsing)
+  explorer: {
+    interactions: (params?: {
+      category?: string; toolName?: string; toolRiskTier?: string;
+      modelFamily?: string; projectSlug?: string;
+      dateFrom?: string; dateTo?: string; search?: string;
+      limit?: number; offset?: number; sortBy?: string; sortOrder?: string;
+    }) => {
+      const query = new URLSearchParams();
+      if (params?.category) query.set('category', params.category);
+      if (params?.toolName) query.set('toolName', params.toolName);
+      if (params?.toolRiskTier) query.set('toolRiskTier', params.toolRiskTier);
+      if (params?.modelFamily) query.set('modelFamily', params.modelFamily);
+      if (params?.projectSlug) query.set('projectSlug', params.projectSlug);
+      if (params?.dateFrom) query.set('dateFrom', params.dateFrom);
+      if (params?.dateTo) query.set('dateTo', params.dateTo);
+      if (params?.search) query.set('search', params.search);
+      if (params?.limit) query.set('limit', String(params.limit));
+      if (params?.offset) query.set('offset', String(params.offset));
+      if (params?.sortBy) query.set('sortBy', params.sortBy);
+      if (params?.sortOrder) query.set('sortOrder', params.sortOrder);
+      return request<import('./types').InteractionQueryResult>(`/explorer/interactions?${query}`);
+    },
+    interactionContent: (id: string) =>
+      request<{ content: string; sessionId: string; projectSlug: string }>(`/explorer/interactions/${encodeURIComponent(id)}/content`),
+    facets: () =>
+      request<import('./types').ExplorerFacets>('/explorer/facets'),
+  },
+
+  // Insights (cross-session AI-powered analysis)
+  insights: {
+    status: () => request<{ running: boolean; lastInsight: string | null }>('/insights/status'),
+    latest: () => request<{ report: import('./types').InsightReport | null }>('/insights/reports/latest'),
+    history: (limit?: number) => {
+      const query = limit ? `?limit=${limit}` : '';
+      return request<{ reports: import('./types').InsightReport[]; count: number }>(`/insights/reports${query}`);
+    },
+    run: () => request<{ report: import('./types').InsightReport }>('/insights/run', { method: 'POST' }),
   },
 
   // Archives (unified Supabase + local)

@@ -18,8 +18,13 @@ import adapterRoutes from './routes/adapters.js';
 import litellmRoutes from './routes/litellm.js';
 import auditorRoutes from './routes/auditor.js';
 import agentConfigRoutes from './routes/agent-configs.js';
+import explorerRoutes from './routes/explorer.js';
+import insightsRoutes from './routes/insights.js';
 import { initAdapters } from './services/adapters/index.js';
 import { startAuditor } from './services/auditor-agent.js';
+import { classifyPendingSessions } from './services/session-cache.js';
+import { buildInteractionIndex } from './services/interaction-index.js';
+import { startInsightsAgent } from './services/insights-agent.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -50,6 +55,8 @@ app.use('/api/adapters', adapterRoutes);
 app.use('/api/litellm', litellmRoutes);
 app.use('/api/auditor', auditorRoutes);
 app.use('/api/agent-configs', agentConfigRoutes);
+app.use('/api/explorer', explorerRoutes);
+app.use('/api/insights', insightsRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler
@@ -67,4 +74,11 @@ if (IS_PROD) {
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`[JubitMind] Running on http://127.0.0.1:${PORT}${IS_PROD ? ' (production)' : ' (development)'}`);
   startAuditor();
+
+  // Background: classify all sessions, build index, then start insights (non-blocking)
+  setTimeout(async () => {
+    await classifyPendingSessions();
+    await buildInteractionIndex();
+    startInsightsAgent();
+  }, 3000);
 });

@@ -11,6 +11,7 @@ import {
   resolveSessionPath,
   type CachedSessionMeta,
 } from './session-cache.js';
+import type { SessionClassification } from './session-classifier.js';
 
 interface SessionMeta {
   sessionId: string;
@@ -27,6 +28,7 @@ interface SessionMeta {
   riskScore?: number;
   autoTags?: string[];
   manualTags?: string[];
+  classification?: SessionClassification;
 }
 
 export interface ClaudeMessage {
@@ -75,6 +77,7 @@ function toSessionMeta(cached: CachedSessionMeta): SessionMeta {
     riskScore: cached.riskScore,
     autoTags: cached.autoTags,
     manualTags: cached.manualTags,
+    classification: cached.classification,
   };
 }
 

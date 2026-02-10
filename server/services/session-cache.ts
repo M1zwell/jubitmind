@@ -5,6 +5,9 @@ import readline from 'readline';
 import { PATHS } from './config-resolver.js';
 import { discoverProjects } from './project-discovery.js';
 import { getEntry } from './tag-store.js';
+import { classifySession, type SessionClassification } from './session-classifier.js';
+
+export type { SessionClassification } from './session-classifier.js';
 
 export interface CachedSessionMeta {
   sessionId: string;
@@ -23,6 +26,9 @@ export interface CachedSessionMeta {
   riskScore?: number;
   autoTags?: string[];
   manualTags?: string[];
+  // Classification fields
+  classification?: SessionClassification;
+  classificationMtime?: number;
 }
 
 // In-memory cache keyed by "projectSlug:sessionId"
@@ -238,4 +244,108 @@ export function resolveSessionPath(projectSlug: string, sessionId: string): stri
  */
 export function getCacheStats(): { totalEntries: number; initialized: boolean } {
   return { totalEntries: cache.size, initialized };
+}
+
+// ---------------------------------------------------------------------------
+// Classification support
+// ---------------------------------------------------------------------------
+
+let classificationRunning = false;
+
+/**
+ * Background-classify all sessions that lack classification data.
+ * Processes in batches to avoid blocking the event loop.
+ */
+export async function classifyPendingSessions(): Promise<void> {
+  if (classificationRunning) return;
+  classificationRunning = true;
+
+  try {
+    const entries = Array.from(cache.entries());
+    const pending = entries.filter(
+      ([, meta]) => !meta.classification || meta.classificationMtime !== meta.fileMtime,
+    );
+
+    if (pending.length === 0) {
+      classificationRunning = false;
+      return;
+    }
+
+    console.log(`[classifier] Classifying ${pending.length} sessions...`);
+    const start = Date.now();
+
+    // Process in batches of 5 to avoid excessive file reads
+    for (let i = 0; i < pending.length; i += 5) {
+      const batch = pending.slice(i, i + 5);
+      await Promise.all(
+        batch.map(async ([key, meta]) => {
+          try {
+            const sessionPath = resolveSessionPath(meta.projectSlug, meta.sessionId);
+            const classification = await classifySession(sessionPath);
+            meta.classification = classification;
+            meta.classificationMtime = meta.fileMtime;
+            cache.set(key, meta);
+          } catch {
+            // skip sessions that fail to classify
+          }
+        }),
+      );
+    }
+
+    console.log(`[classifier] Classification complete in ${Date.now() - start}ms`);
+  } finally {
+    classificationRunning = false;
+  }
+}
+
+/**
+ * Classify a single session on-demand. Updates the cache.
+ */
+export async function classifySingleSession(
+  projectSlug: string,
+  sessionId: string,
+): Promise<SessionClassification | null> {
+  const key = cacheKey(projectSlug, sessionId);
+  const meta = cache.get(key);
+  if (!meta) return null;
+
+  try {
+    const sessionPath = resolveSessionPath(projectSlug, sessionId);
+    const classification = await classifySession(sessionPath);
+    meta.classification = classification;
+    meta.classificationMtime = meta.fileMtime;
+    cache.set(key, meta);
+    return classification;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Get classification progress status.
+ */
+export function getClassificationStatus(): {
+  total: number;
+  classified: number;
+  pending: number;
+  running: boolean;
+} {
+  let classified = 0;
+  let total = 0;
+
+  for (const meta of cache.values()) {
+    total++;
+    if (meta.classification && meta.classificationMtime === meta.fileMtime) {
+      classified++;
+    }
+  }
+
+  return { total, classified, pending: total - classified, running: classificationRunning };
+}
+
+/**
+ * Get all cached sessions without limit (used by indexer and facets).
+ */
+export function getAllSessionsUnlimited(): CachedSessionMeta[] {
+  return Array.from(cache.values());
 }

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { History, Search, Cloud, Download, Upload, FolderOpen, ShieldAlert, Tag } from 'lucide-react';
+import { History, Search, Cloud, Download, Upload, FolderOpen, ShieldAlert, Tag, Cpu, Wrench, Brain } from 'lucide-react';
 import {
   useConversationSessions,
   useDeleteConversation,
   useProjects,
   useAllTags,
+  useConversationFacets,
 } from '@/hooks/useConversations';
 import { api } from '@/lib/api';
 import { SessionList } from './SessionList';
@@ -21,11 +22,24 @@ export function ConversationHistory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState<string | undefined>(undefined);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
+  const [modelFilter, setModelFilter] = useState<string[]>([]);
+  const [toolsFilter, setToolsFilter] = useState<string[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
+  const [hasThinkingFilter, setHasThinkingFilter] = useState(false);
 
-  const { data, isLoading } = useConversationSessions(sourceFilter, projectFilter, riskFilter, tagFilter.length > 0 ? tagFilter : undefined);
+  const advancedFilters = {
+    model: modelFilter.length > 0 ? modelFilter : undefined,
+    tools: toolsFilter.length > 0 ? toolsFilter : undefined,
+    category: categoryFilter,
+    hasThinking: hasThinkingFilter || undefined,
+  };
+
+  const { data, isLoading } = useConversationSessions(sourceFilter, projectFilter, riskFilter, tagFilter.length > 0 ? tagFilter : undefined, advancedFilters);
   const { data: projectsData } = useProjects();
   const { data: tagsData } = useAllTags();
+  const { data: facetsData } = useConversationFacets();
   const deleteConversation = useDeleteConversation();
+  const hasAdvancedFilters = modelFilter.length > 0 || toolsFilter.length > 0 || !!categoryFilter || hasThinkingFilter;
 
   const sessions = (data?.sessions || []) as SessionMeta[];
 
@@ -166,12 +180,81 @@ export function ConversationHistory() {
             </div>
           )}
 
-          {/* Active tag filters */}
-          {tagFilter.length > 0 && (
-            <div className="flex items-center gap-0.5">
+          {/* Model Filter */}
+          {facetsData && facetsData.models.length > 0 && (
+            <div className="relative flex items-center">
+              <Cpu className="absolute left-2 w-3 h-3 text-[var(--color-text-muted)] pointer-events-none" />
+              <select
+                value=""
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v && !modelFilter.includes(v)) setModelFilter([...modelFilter, v]);
+                }}
+                className="pl-7 pr-6 py-1 text-[10px] bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded text-[var(--color-text-primary)] focus:outline-none focus:border-teal-500/50 appearance-none cursor-pointer"
+              >
+                <option value="">Model</option>
+                {facetsData.models.map((m) => (
+                  <option key={m.family} value={m.family}>{m.family} ({m.count})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Tool Filter */}
+          {facetsData && facetsData.tools.length > 0 && (
+            <div className="relative flex items-center">
+              <Wrench className="absolute left-2 w-3 h-3 text-[var(--color-text-muted)] pointer-events-none" />
+              <select
+                value=""
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v && !toolsFilter.includes(v)) setToolsFilter([...toolsFilter, v]);
+                }}
+                className="pl-7 pr-6 py-1 text-[10px] bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded text-[var(--color-text-primary)] focus:outline-none focus:border-teal-500/50 appearance-none cursor-pointer"
+              >
+                <option value="">Tool</option>
+                {facetsData.tools.slice(0, 15).map((t) => (
+                  <option key={t.name} value={t.name}>{t.name} ({t.count})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Category Filter */}
+          {facetsData && facetsData.categories.length > 0 && (
+            <select
+              value={categoryFilter || ''}
+              onChange={(e) => setCategoryFilter(e.target.value || undefined)}
+              className="px-2 py-1 text-[10px] bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded text-[var(--color-text-primary)] focus:outline-none focus:border-teal-500/50 appearance-none cursor-pointer"
+            >
+              <option value="">Category</option>
+              {facetsData.categories.map((c) => (
+                <option key={c.name} value={c.name}>{c.name} ({c.count})</option>
+              ))}
+            </select>
+          )}
+
+          {/* Thinking Toggle */}
+          {facetsData && facetsData.thinkingSessions > 0 && (
+            <button
+              onClick={() => setHasThinkingFilter(!hasThinkingFilter)}
+              className={`flex items-center gap-1 px-2 py-0.5 text-[10px] rounded transition-colors border ${
+                hasThinkingFilter
+                  ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                  : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:text-[var(--color-text-primary)]'
+              }`}
+              title={`${facetsData.thinkingSessions} sessions with thinking`}
+            >
+              <Brain className="w-3 h-3" /> Thinking
+            </button>
+          )}
+
+          {/* Active filter pills */}
+          {(tagFilter.length > 0 || modelFilter.length > 0 || toolsFilter.length > 0) && (
+            <div className="flex items-center gap-0.5 flex-wrap">
               {tagFilter.map((t) => (
                 <button
-                  key={t}
+                  key={`tag-${t}`}
                   onClick={() => setTagFilter(tagFilter.filter((x) => x !== t))}
                   className="text-[9px] px-1.5 py-0.5 bg-teal-500/20 text-teal-400 rounded hover:bg-red-500/20 hover:text-red-400 transition-colors"
                   title="Click to remove"
@@ -179,6 +262,34 @@ export function ConversationHistory() {
                   {t} x
                 </button>
               ))}
+              {modelFilter.map((m) => (
+                <button
+                  key={`model-${m}`}
+                  onClick={() => setModelFilter(modelFilter.filter((x) => x !== m))}
+                  className="text-[9px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                  title="Click to remove"
+                >
+                  {m} x
+                </button>
+              ))}
+              {toolsFilter.map((t) => (
+                <button
+                  key={`tool-${t}`}
+                  onClick={() => setToolsFilter(toolsFilter.filter((x) => x !== t))}
+                  className="text-[9px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                  title="Click to remove"
+                >
+                  {t} x
+                </button>
+              ))}
+              {hasAdvancedFilters && (
+                <button
+                  onClick={() => { setModelFilter([]); setToolsFilter([]); setCategoryFilter(undefined); setHasThinkingFilter(false); setTagFilter([]); }}
+                  className="text-[9px] px-1.5 py-0.5 text-[var(--color-text-muted)] hover:text-red-400 transition-colors"
+                >
+                  Clear all
+                </button>
+              )}
             </div>
           )}
 

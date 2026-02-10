@@ -6,6 +6,11 @@ import { getClaudeMessages, getClaudeMessagesRaw } from '../services/claude-sess
 import { scoreMessageContent, computeSessionRisk } from '../services/risk-scorer.js';
 import { computeAutoTags } from '../services/auto-tagger.js';
 import * as tagStore from '../services/tag-store.js';
+import {
+  getClassificationStatus,
+  classifySingleSession,
+  getAllSessionsUnlimited,
+} from '../services/session-cache.js';
 
 const router = Router();
 
@@ -36,6 +41,10 @@ router.get('/sessions', async (req, res) => {
     const project = req.query.project as string | undefined;
     const minRisk = req.query.minRisk as string | undefined;
     const tagFilter = req.query.tags as string | undefined;
+    const modelFilter = req.query.model as string | undefined;
+    const toolsFilter = req.query.tools as string | undefined;
+    const categoryFilter = req.query.category as string | undefined;
+    const hasThinking = req.query.hasThinking as string | undefined;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
 
     let sessions: Array<Record<string, unknown>> = [];
@@ -69,6 +78,42 @@ router.get('/sessions', async (req, res) => {
         const sessionManualTags = (s.manualTags as string[]) || [];
         const allTags = [...sessionAutoTags, ...sessionManualTags].map((t) => t.toLowerCase());
         return filterTags.some((ft) => allTags.includes(ft));
+      });
+    }
+
+    // Apply model filter (comma-separated model families)
+    if (modelFilter) {
+      const families = modelFilter.split(',').map((m) => m.trim().toLowerCase());
+      sessions = sessions.filter((s) => {
+        const classification = s.classification as { modelsUsed?: Array<{ modelFamily: string }> } | undefined;
+        const sessionFamilies = classification?.modelsUsed?.map((m) => m.modelFamily.toLowerCase()) || [];
+        return families.some((f) => sessionFamilies.includes(f));
+      });
+    }
+
+    // Apply tool filter (comma-separated, sessions must contain ALL)
+    if (toolsFilter) {
+      const requiredTools = toolsFilter.split(',').map((t) => t.trim());
+      sessions = sessions.filter((s) => {
+        const classification = s.classification as { toolsUsed?: Array<{ toolName: string }> } | undefined;
+        const sessionTools = classification?.toolsUsed?.map((t) => t.toolName) || [];
+        return requiredTools.every((rt) => sessionTools.includes(rt));
+      });
+    }
+
+    // Apply category filter
+    if (categoryFilter) {
+      sessions = sessions.filter((s) => {
+        const classification = s.classification as { dominantCategory?: string } | undefined;
+        return classification?.dominantCategory === categoryFilter;
+      });
+    }
+
+    // Apply hasThinking filter
+    if (hasThinking === 'true') {
+      sessions = sessions.filter((s) => {
+        const classification = s.classification as { hasThinking?: boolean } | undefined;
+        return classification?.hasThinking === true;
       });
     }
 
@@ -276,6 +321,86 @@ router.get('/cloud/export', async (req, res) => {
         messageCount: messages.length,
         messages,
       },
+    });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Classification & Facets endpoints
+// ---------------------------------------------------------------------------
+
+// Get classification progress
+router.get('/classification-status', (_req, res) => {
+  try {
+    const status = getClassificationStatus();
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// On-demand classify a single session
+router.post('/sessions/:sessionId/classify', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const project = req.query.project as string | undefined;
+    if (!project) {
+      return res.status(400).json({ error: 'project query param is required' });
+    }
+    const classification = await classifySingleSession(project, sessionId);
+    if (!classification) {
+      return res.status(404).json({ error: 'Session not found in cache' });
+    }
+    res.json({ classification });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// Get aggregated facets for filter dropdowns
+router.get('/facets', (_req, res) => {
+  try {
+    const allSessions = getAllSessionsUnlimited();
+
+    const modelCounts = new Map<string, number>();
+    const toolCounts = new Map<string, number>();
+    const categoryCounts = new Map<string, number>();
+    let thinkingSessions = 0;
+
+    for (const session of allSessions) {
+      const c = session.classification;
+      if (!c) continue;
+
+      // Models
+      for (const model of c.modelsUsed) {
+        modelCounts.set(model.modelFamily, (modelCounts.get(model.modelFamily) || 0) + 1);
+      }
+
+      // Tools
+      for (const tool of c.toolsUsed) {
+        toolCounts.set(tool.toolName, (toolCounts.get(tool.toolName) || 0) + 1);
+      }
+
+      // Categories
+      categoryCounts.set(c.dominantCategory, (categoryCounts.get(c.dominantCategory) || 0) + 1);
+
+      // Thinking
+      if (c.hasThinking) thinkingSessions++;
+    }
+
+    res.json({
+      models: Array.from(modelCounts.entries())
+        .map(([family, count]) => ({ family, count }))
+        .sort((a, b) => b.count - a.count),
+      tools: Array.from(toolCounts.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count),
+      categories: Array.from(categoryCounts.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count),
+      thinkingSessions,
     });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });

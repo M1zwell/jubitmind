@@ -20,6 +20,8 @@ import {
   Router,
   ShieldAlert,
   ShieldCheck,
+  Layers,
+  Lightbulb,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -36,7 +38,9 @@ const NAV_SECTIONS = [
       { to: '/history', icon: History, label: 'History' },
       { to: '/archived-discussions', icon: Archive, label: 'Archives' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/explorer', icon: Layers, label: 'Explorer' },
       { to: '/auditor', icon: ShieldAlert, label: 'Auditor' },
+      { to: '/insights', icon: Lightbulb, label: 'Insights' },
       { to: '/health', icon: Activity, label: 'Health' },
     ],
   },

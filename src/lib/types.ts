@@ -154,6 +154,42 @@ export interface SessionMeta {
   riskScore?: number;
   autoTags?: string[];
   manualTags?: string[];
+  classification?: SessionClassification;
+}
+
+// --- Session Classification ---
+
+export interface ModelUsageInfo {
+  modelId: string;
+  modelFamily: string;
+  messageCount: number;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+export interface ToolUsageInfo {
+  toolName: string;
+  count: number;
+  riskTier: RiskLevel;
+}
+
+export interface MessageBreakdown {
+  userPrompts: number;
+  assistantText: number;
+  thinkingBlocks: number;
+  toolUseBlocks: number;
+  toolResultBlocks: number;
+  totalMessages: number;
+}
+
+export interface SessionClassification {
+  modelsUsed: ModelUsageInfo[];
+  toolsUsed: ToolUsageInfo[];
+  messageBreakdown: MessageBreakdown;
+  dominantCategory: 'prompt-heavy' | 'tool-heavy' | 'planning-heavy' | 'balanced';
+  hasThinking: boolean;
+  hasToolUse: boolean;
+  classifiedAt: string;
 }
 
 // --- Projects ---
@@ -297,6 +333,65 @@ export interface AnalysisPrepareResult {
   estimatedTokens: number;
   preview: string;
   truncated: boolean;
+}
+
+// --- Interaction Explorer ---
+
+export interface IndexedInteraction {
+  id: string;
+  sessionId: string;
+  projectSlug: string;
+  projectDisplayName: string;
+  timestamp: string;
+  category: 'user-prompt' | 'assistant-text' | 'thinking' | 'tool-use' | 'tool-result';
+  toolName?: string;
+  toolRiskTier?: RiskLevel;
+  modelFamily?: string;
+  preview: string;
+}
+
+export interface InteractionQueryResult {
+  items: IndexedInteraction[];
+  total: number;
+  facets: {
+    byCategory: Record<string, number>;
+    byTool: Record<string, number>;
+    byModel: Record<string, number>;
+    byRiskTier: Record<string, number>;
+  };
+}
+
+export interface ExplorerFacets {
+  categories: Array<{ name: string; count: number }>;
+  tools: Array<{ name: string; count: number }>;
+  models: Array<{ name: string; count: number }>;
+  riskTiers: Array<{ name: string; count: number }>;
+  projects: Array<{ slug: string; displayName: string; count: number }>;
+}
+
+// --- Insights ---
+
+export interface InsightReport {
+  id: string;
+  timestamp: string;
+  type: 'scheduled' | 'on-demand';
+  duration_ms: number;
+  promptPatterns: {
+    commonThemes: Array<{ theme: string; frequency: number; examples: string[] }>;
+    recurringRequests: Array<{ pattern: string; count: number }>;
+    avgPromptLength: number;
+  };
+  toolUsageTrends: {
+    mostUsedTools: Array<{ tool: string; count: number; riskExposure: number }>;
+    toolUsageOverTime: Array<{ date: string; toolCounts: Record<string, number> }>;
+    riskExposureTrend: Array<{ date: string; criticalCount: number; highCount: number }>;
+  };
+  modelComparison: {
+    modelsUsed: Array<{ model: string; sessionCount: number; totalTokens: number }>;
+    costByModel: Array<{ model: string; estimatedCost: number }>;
+  };
+  recommendations: string[];
+  aiSummary?: string;
 }
 
 // --- Auditor ---

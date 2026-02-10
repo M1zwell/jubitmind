@@ -22,6 +22,8 @@ import { HomePage } from '@/components/dashboard/HomePage';
 import { RoutingDashboard } from '@/components/litellm/RoutingDashboard';
 import { AuditorPage } from '@/components/auditor/AuditorPage';
 import { AgentConfigsPage } from '@/components/config/AgentConfigsPage';
+import { InteractionExplorerPage } from '@/pages/InteractionExplorerPage';
+import { InsightsPage } from '@/pages/InsightsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +60,8 @@ export default function App() {
             <Route path="/litellm" element={<RoutingDashboard />} />
             <Route path="/auditor" element={<AuditorPage />} />
             <Route path="/agent-configs" element={<AgentConfigsPage />} />
+            <Route path="/explorer" element={<InteractionExplorerPage />} />
+            <Route path="/insights" element={<InsightsPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>
