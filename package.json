@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://github.com/M1zwell/jubitmind.git"
   },
-  "main": "electron/main.js",
+  "main": "dist-electron-ts/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "vite --port 8081",
@@ -29,7 +29,12 @@
     "electron:dev": "npm run build && npm run electron:build-ts && electron .",
     "electron:build": "npm run build && npm run electron:build-ts && electron-builder --config electron-builder.yml",
     "electron:build:mac": "npm run build && npm run electron:build-ts && electron-builder --mac --config electron-builder.yml",
-    "electron:build:win": "npm run build && npm run electron:build-ts && electron-builder --win --config electron-builder.yml"
+    "electron:build:win": "npm run build && npm run electron:build-ts && electron-builder --win --config electron-builder.yml",
+    "sidecar:build": "bash scripts/build-sidecar.sh",
+    "sidecar:build:win": "scripts\\build-sidecar.bat",
+    "electron:build:full": "npm run sidecar:build && npm run electron:build",
+    "electron:build:full:mac": "npm run sidecar:build && npm run electron:build:mac",
+    "electron:build:full:win": "npm run sidecar:build:win && npm run electron:build:win"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",

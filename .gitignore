@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-electron/
+dist-electron-ts/
 providers.json
 /conversations/
 /data/
@@ -17,6 +18,9 @@ __pycache__/
 sidecar/config.json
 sidecar/data/
 sidecar/.venv/
+sidecar/dist/
+sidecar/build/
+*.spec.bak
 
 # Generated launcher scripts
 start.sh

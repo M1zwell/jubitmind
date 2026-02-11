@@ -6,7 +6,7 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "outDir": "electron",
+    "outDir": "dist-electron-ts",
     "rootDir": "electron",
     "declaration": false
   },

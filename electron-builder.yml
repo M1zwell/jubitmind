@@ -8,14 +8,22 @@ directories:
 
 files:
   - dist/**/*
-  - electron/**/*.js
+  - dist-electron-ts/**/*.js
   - electron/splash.html
   - package.json
   - providers.json
   - node_modules/**/*
+  # Sidecar Python source (dev/fallback — used if binary not present)
   - sidecar/main.py
   - sidecar/schemas.py
   - sidecar/requirements.txt
+
+# Bundle pre-built sidecar binary alongside the app (if built)
+extraResources:
+  - from: "sidecar/dist/sidecar/"
+    to: "sidecar"
+    filter:
+      - "**/*"
 
 mac:
   category: public.app-category.developer-tools

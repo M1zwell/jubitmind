@@ -17,6 +17,7 @@ Usage:
 
 import json
 import os
+import sys
 import tempfile
 import time
 import traceback
@@ -31,6 +32,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+# PyInstaller frozen app support: resolve resource path
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    _BUNDLE_DIR = Path(sys._MEIPASS)
+else:
+    _BUNDLE_DIR = Path(__file__).parent
+
+# Import schemas from the correct location (bundled or source)
+sys.path.insert(0, str(_BUNDLE_DIR))
 from schemas import get_schema, list_schemas
 
 app = FastAPI(title="JubitMind LangExtract Sidecar", version="1.1.0")
@@ -46,8 +55,15 @@ app.add_middleware(
 # Persistent configuration
 # ---------------------------------------------------------------------------
 
-CONFIG_PATH = Path(__file__).parent / "config.json"
-DATA_DIR = Path(__file__).parent / "data"
+# For frozen apps, use a writable directory (not the bundle dir)
+if getattr(sys, 'frozen', False):
+    # In packaged Electron app: use the directory containing the binary
+    _APP_DATA_DIR = Path(os.environ.get('JUBITMIND_DATA_DIR', Path(sys.executable).parent))
+else:
+    _APP_DATA_DIR = Path(__file__).parent
+
+CONFIG_PATH = _APP_DATA_DIR / "config.json"
+DATA_DIR = _APP_DATA_DIR / "data"
 
 DEFAULT_CONFIG = {
     "provider": "gemini",
@@ -597,4 +613,11 @@ if __name__ == "__main__":
     import uvicorn
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     port = int(os.environ.get("SIDECAR_PORT", "3100"))
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    # PyInstaller frozen apps: must use workers=1 (multiprocessing breaks)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=port,
+        workers=1,
+        log_level="info",
+    )

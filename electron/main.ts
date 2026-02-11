@@ -59,39 +59,89 @@ async function waitForServer(port: number, timeout = 15000): Promise<boolean> {
   return false;
 }
 
-/** Start the LangExtract sidecar (Python FastAPI) if available. */
+/** Wait for the sidecar to be ready. */
+async function waitForSidecar(timeout = 10000): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      const response = await fetch('http://127.0.0.1:3100/health');
+      if (response.ok) return true;
+    } catch {
+      // Not ready yet
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  return false;
+}
+
+/** Start the LangExtract sidecar — tries bundled binary first, falls back to Python venv. */
 function startSidecar(): ChildProcess | null {
+  const fs = require('fs');
   const sidecarDir = path.join(__dirname, '..', 'sidecar');
+
+  // --- Strategy 1: Bundled binary (packaged Electron app) ---
+  // electron-builder puts extraResources into process.resourcesPath
+  const resourcesPath = (process as { resourcesPath?: string }).resourcesPath;
+  if (resourcesPath) {
+    const binaryName = process.platform === 'win32' ? 'sidecar.exe' : 'sidecar';
+    const bundledBinary = path.join(resourcesPath, 'sidecar', binaryName);
+
+    if (fs.existsSync(bundledBinary)) {
+      console.log('[sidecar] Starting bundled binary...');
+      const dataDir = path.join(app.getPath('userData'), 'sidecar-data');
+      fs.mkdirSync(dataDir, { recursive: true });
+
+      const proc = spawn(bundledBinary, [], {
+        env: {
+          ...process.env,
+          SIDECAR_PORT: '3100',
+          JUBITMIND_DATA_DIR: dataDir,
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+
+      proc.stdout?.on('data', (data: Buffer) => {
+        console.log(`[sidecar] ${data.toString().trim()}`);
+      });
+      proc.stderr?.on('data', (data: Buffer) => {
+        const msg = data.toString().trim();
+        if (msg) console.log(`[sidecar] ${msg}`);
+      });
+      proc.on('exit', (code: number | null) => {
+        console.log(`[sidecar] exited with code ${code}`);
+        sidecarProcess = null;
+      });
+
+      return proc;
+    }
+  }
+
+  // --- Strategy 2: Python venv (development mode) ---
   const venvPython = process.platform === 'win32'
     ? path.join(sidecarDir, '.venv', 'Scripts', 'python.exe')
     : path.join(sidecarDir, '.venv', 'bin', 'python3');
   const mainPy = path.join(sidecarDir, 'main.py');
 
-  // Check if sidecar is installed
-  const fs = require('fs');
   if (!fs.existsSync(venvPython) || !fs.existsSync(mainPy)) {
     console.log('[sidecar] Not installed — skipping (run install.sh to set up)');
     return null;
   }
 
-  console.log('[sidecar] Starting LangExtract sidecar...');
+  console.log('[sidecar] Starting Python venv sidecar (dev mode)...');
   const proc = spawn(venvPython, [mainPy], {
     cwd: sidecarDir,
     env: { ...process.env, SIDECAR_PORT: '3100' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
-  proc.stdout?.on('data', (data) => {
+  proc.stdout?.on('data', (data: Buffer) => {
     console.log(`[sidecar] ${data.toString().trim()}`);
   });
-
-  proc.stderr?.on('data', (data) => {
-    // Uvicorn logs to stderr
+  proc.stderr?.on('data', (data: Buffer) => {
     const msg = data.toString().trim();
     if (msg) console.log(`[sidecar] ${msg}`);
   });
-
-  proc.on('exit', (code) => {
+  proc.on('exit', (code: number | null) => {
     console.log(`[sidecar] exited with code ${code}`);
     sidecarProcess = null;
   });
@@ -283,8 +333,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: bounds.width,
     height: bounds.height,
-    x: bounds.x,
-    y: bounds.y,
+    ...('x' in bounds ? { x: bounds.x } : {}),
+    ...('y' in bounds ? { y: bounds.y } : {}),
     minWidth: 800,
     minHeight: 600,
     title: 'JubitMind',
@@ -300,7 +350,8 @@ function createWindow() {
   });
 
   // Load splash screen immediately
-  mainWindow.loadFile(path.join(__dirname, 'splash.html'));
+  // splash.html stays in electron/ dir, __dirname is dist-electron-ts/
+  mainWindow.loadFile(path.join(__dirname, '..', 'electron', 'splash.html'));
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
     if (saved.isMaximized) mainWindow?.maximize();
@@ -340,8 +391,31 @@ app.whenReady().then(async () => {
   // Start sidecar (non-blocking, optional)
   sidecarProcess = startSidecar();
 
+  // Update splash: extraction engine starting
+  if (sidecarProcess) {
+    mainWindow?.webContents.executeJavaScript(`
+      const s = document.getElementById('status');
+      if (s) s.textContent = 'Starting extraction engine...';
+    `).catch(() => {});
+
+    // Wait for sidecar in background (don't block server startup)
+    waitForSidecar(10000).then((ready) => {
+      if (ready) {
+        console.log('[JubitMind] Sidecar ready');
+      } else {
+        console.log('[JubitMind] Sidecar not ready — continuing without it');
+      }
+    });
+  }
+
   // Start server
   serverProcess = startServer(serverPort);
+
+  // Update splash: server starting
+  mainWindow?.webContents.executeJavaScript(`
+    const s = document.getElementById('status');
+    if (s) s.textContent = 'Starting server...';
+  `).catch(() => {});
 
   // Wait for server to be ready
   const ready = await waitForServer(serverPort);
