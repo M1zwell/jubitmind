@@ -97,7 +97,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
 |-----|-----|------|------|------|
 | `hero.headline` | Human judgement meets AI mind. Every interaction, valued. | 人类判断力遇见AI智慧。每一次交互，皆有价值。 | 人間の判断力とAIの知性が出会う。すべての対話に、価値を。 | 인간의 판단력이 AI의 지성을 만나다. 모든 상호작용에 가치를. |
 | `hero.subline` | The open-source AI interaction audit platform. Risk-score, classify, and govern every human-AI conversation across 11 coding tools. | 开源 AI 交互审计平台。跨 11 种编码工具，对每一次人机对话进行风险评分、分类与治理。 | オープンソースのAI対話監査プラットフォーム。11のコーディングツールにわたる、すべての人間-AI会話をリスクスコアリング、分類、ガバナンス。 | 오픈소스 AI 상호작용 감사 플랫폼. 11개 코딩 도구에 걸쳐 모든 인간-AI 대화를 위험 점수화, 분류 및 거버넌스. |
-| `hero.version` | v0.77.0 · Open Source · Apache 2.0 | v0.77.0 · 开源 · Apache 2.0 许可证 | v0.77.0 · オープンソース · Apache 2.0 | v0.77.0 · 오픈소스 · Apache 2.0 |
+| `hero.version` | v0.78.0 · Open Source · Apache 2.0 | v0.78.0 · 开源 · Apache 2.0 许可证 | v0.78.0 · オープンソース · Apache 2.0 | v0.78.0 · 오픈소스 · Apache 2.0 |
 | `hero.download_mac` | Download for macOS | 下载 macOS 版 | macOS版をダウンロード | macOS용 다운로드 |
 | `hero.download_win` | Download for Windows | 下载 Windows 版 | Windows版をダウンロード | Windows용 다운로드 |
 | `hero.github` | View on GitHub | 在 GitHub 上查看 | GitHubで見る | GitHub에서 보기 |
@@ -228,7 +228,7 @@ export const translations = {
     hero: {
       headline: 'Human judgement meets AI mind. Every interaction, valued.',
       subline: 'The open-source AI interaction audit platform. Risk-score, classify, and govern every human-AI conversation across 11 coding tools.',
-      version: 'v0.77.0 · Open Source · Apache 2.0',
+      version: 'v0.78.0 · Open Source · Apache 2.0',
       download_mac: 'Download for macOS',
       download_win: 'Download for Windows',
       github: 'View on GitHub',
@@ -324,7 +324,7 @@ export const translations = {
     hero: {
       headline: '人类判断力遇见AI智慧。每一次交互，皆有价值。',
       subline: '开源 AI 交互审计平台。跨 11 种编码工具，对每一次人机对话进行风险评分、分类与治理。',
-      version: 'v0.77.0 · 开源 · Apache 2.0 许可证',
+      version: 'v0.78.0 · 开源 · Apache 2.0 许可证',
       download_mac: '下载 macOS 版',
       download_win: '下载 Windows 版',
       github: '在 GitHub 上查看',
@@ -420,7 +420,7 @@ export const translations = {
     hero: {
       headline: '人間の判断力とAIの知性が出会う。すべての対話に、価値を。',
       subline: 'オープンソースのAI対話監査プラットフォーム。11のコーディングツールにわたる、すべての人間-AI会話をリスクスコアリング、分類、ガバナンス。',
-      version: 'v0.77.0 · オープンソース · Apache 2.0',
+      version: 'v0.78.0 · オープンソース · Apache 2.0',
       download_mac: 'macOS版をダウンロード',
       download_win: 'Windows版をダウンロード',
       github: 'GitHubで見る',
@@ -516,7 +516,7 @@ export const translations = {
     hero: {
       headline: '인간의 판단력이 AI의 지성을 만나다. 모든 상호작용에 가치를.',
       subline: '오픈소스 AI 상호작용 감사 플랫폼. 11개 코딩 도구에 걸쳐 모든 인간-AI 대화를 위험 점수화, 분류 및 거버넌스.',
-      version: 'v0.77.0 · 오픈소스 · Apache 2.0',
+      version: 'v0.78.0 · 오픈소스 · Apache 2.0',
       download_mac: 'macOS용 다운로드',
       download_win: 'Windows용 다운로드',
       github: 'GitHub에서 보기',

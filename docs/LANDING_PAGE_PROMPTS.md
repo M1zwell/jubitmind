@@ -62,7 +62,7 @@ This approach is **recommended** for a cleaner marketing page experience.
 
 ### Context
 
-Create a single-page product landing page for **JubitMind v0.77.0** — an AI interaction audit and governance desktop app. The page is primarily a download/marketing page. It lives inside the dseek.ai React SPA but should feel like a standalone product page.
+Create a single-page product landing page for **JubitMind v0.78.0** — an AI interaction audit and governance desktop app. The page is primarily a download/marketing page. It lives inside the dseek.ai React SPA but should feel like a standalone product page.
 
 ### Design System Reference
 
@@ -102,7 +102,7 @@ across 11 coding tools — from a single desktop app.
 
 [Download for macOS ▾]  [Download for Windows ▾]  [View on GitHub →]
 
-v0.77.0 · Open Source · Apache 2.0
+v0.78.0 · Open Source · Apache 2.0
 ```
 
 **Implementation notes:**
@@ -112,12 +112,12 @@ v0.77.0 · Open Source · Apache 2.0
 - "View on GitHub" as secondary outlined button
 - Subtle SVG dot pattern or grid overlay at 5% opacity (see UnifiedHero.tsx pattern)
 
-**Download URLs** (GitHub Releases v0.77.0):
+**Download URLs** (GitHub Releases v0.78.0):
 ```
-macOS DMG:        https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64.dmg
-macOS ZIP:        https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64-mac.zip
-Windows Setup:    https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.77.0.exe
-Windows Portable: https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0.exe
+macOS DMG:        https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64.dmg
+macOS ZIP:        https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64-mac.zip
+Windows Setup:    https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-Setup-0.78.0.exe
+Windows Portable: https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0.exe
 All releases:     https://github.com/M1zwell/jubitmind/releases
 GitHub repo:      https://github.com/M1zwell/jubitmind
 ```
@@ -283,7 +283,7 @@ Built by Jubit AI · Apache 2.0 License · Copyright © 2025-2026
 #### Section 9: Footer
 
 ```
-JubitMind v0.77.0 | Apache 2.0 License | Copyright © 2025-2026 Jubit AI
+JubitMind v0.78.0 | Apache 2.0 License | Copyright © 2025-2026 Jubit AI
 
 GitHub  ·  Documentation  ·  dseek.ai  ·  jubit.ai
 
@@ -320,22 +320,22 @@ const DOWNLOADS = {
     primary: {
       label: 'Download for macOS',
       sublabel: 'Apple Silicon (arm64) · DMG',
-      url: 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64.dmg',
+      url: 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64.dmg',
     },
     secondary: {
       label: 'ZIP Archive',
-      url: 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64-mac.zip',
+      url: 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64-mac.zip',
     },
   },
   windows: {
     primary: {
       label: 'Download for Windows',
       sublabel: '64-bit · Installer (.exe)',
-      url: 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.77.0.exe',
+      url: 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-Setup-0.78.0.exe',
     },
     secondary: {
       label: 'Portable (no install)',
-      url: 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0.exe',
+      url: 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0.exe',
     },
   },
   linux: {
@@ -439,10 +439,10 @@ Or download directly from GitHub Releases:
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| **macOS** | [JubitMind.dmg](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64.dmg) | Apple Silicon (arm64) |
-| **macOS** | [JubitMind.zip](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-arm64-mac.zip) | ZIP archive |
-| **Windows** | [JubitMind-Setup.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.77.0.exe) | NSIS installer |
-| **Windows** | [JubitMind-Portable.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0.exe) | Portable (no install) |
+| **macOS** | [JubitMind.dmg](https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64.dmg) | Apple Silicon (arm64) |
+| **macOS** | [JubitMind.zip](https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64-mac.zip) | ZIP archive |
+| **Windows** | [JubitMind-Setup.exe](https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-Setup-0.78.0.exe) | NSIS installer |
+| **Windows** | [JubitMind-Portable.exe](https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0.exe) | Portable (no install) |
 
 Also available at **[jubit.ai/jubitmind](https://jubit.ai/jubitmind)**.
 ```
@@ -488,7 +488,7 @@ When building the landing page, refer to these files for accurate copy, feature 
 | `jubitmind/docs/MARKETING.md` | Brand voice, taglines, positioning, landing page structure, social copy, competitive messaging |
 | `jubitmind/docs/PRD.md` | Problem statement, personas, features, architecture, tech stack |
 | `jubitmind/README.md` | Feature list, API reference, scripts, architecture diagram |
-| `jubitmind/package.json` | Version (0.77.0), scripts |
+| `jubitmind/package.json` | Version (0.78.0), scripts |
 | `jubitmind/electron-builder.yml` | Build targets, platform config |
 | `src/components/ui/UnifiedHero.tsx` | Hero section pattern (gradient text, SVG overlay, feature grid, CTA buttons) |
 | `src/App.tsx` | Route configuration (ROUTE_MAP), lazy loading pattern |
