@@ -30,9 +30,24 @@ const HOME_SLUG_PREFIX = os.homedir().replace(/[/_]/g, '-') + '-';
  *      "-Users-jubit-nb0-JubitLLMNPMPlayground-zaydenclips" => "JubitLLMNPMPlayground/zaydenclips"
  *      "-" => "(root)"
  *      "-private-tmp" => "/private/tmp"
+ *      "D--Git-project-name" => "Git/project-name" (Windows)
  */
 export function slugToDisplayName(slug: string): string {
   if (slug === '-') return '(root)';
+
+  // Handle Windows drive-letter paths (e.g., "D--Git-project")
+  const windowsMatch = slug.match(/^([A-Z])--(.+)$/);
+  if (windowsMatch) {
+    // Convert "D--Git-project-name" to "D:/Git/project-name" style display
+    const [, , pathPart] = windowsMatch;
+    // Take the last meaningful segment as the project name
+    const segments = pathPart.split('-').filter(Boolean);
+    // Return the last 1-2 segments as the display name
+    if (segments.length >= 2) {
+      return segments.slice(-2).join('/');
+    }
+    return segments[segments.length - 1] || pathPart;
+  }
 
   // Strip the home directory prefix to get the project-relative path
   // e.g. "-Users-jubit-nb0-JubitLLMNPMPlayground" => "JubitLLMNPMPlayground"
@@ -55,10 +70,21 @@ export function slugToDisplayName(slug: string): string {
 /**
  * Resolve the original filesystem path from a slug.
  * e.g. "-Users-jubit-nb0-JubitLLMNPMPlayground" => "/Users/jubit_nb0/JubitLLMNPMPlayground"
+ *      "D--Git-project" => "D:/Git/project" (Windows)
  * Note: This is approximate since hyphens in the original path are ambiguous.
  */
 export function slugToOriginalPath(slug: string): string {
   if (slug === '-') return '/';
+
+  // Handle Windows drive-letter paths (e.g., "D--Git-project")
+  const windowsMatch = slug.match(/^([A-Z])--(.+)$/);
+  if (windowsMatch) {
+    const [, drive, pathPart] = windowsMatch;
+    // Convert "D--Git-project" to "D:/Git/project"
+    // Note: This is approximate since hyphens could be original or path separators
+    return `${drive}:/${pathPart.replace(/-/g, '/')}`;
+  }
+
   // The slug is the path with "/" replaced by "-", but we can't perfectly reverse it
   // since original paths may contain hyphens. Best effort: check if the path exists.
   // For now, just use the display name as context.
@@ -90,8 +116,11 @@ export async function discoverProjects(): Promise<ProjectInfo[]> {
   for (const chunk of chunks) {
     const results = await Promise.all(
       chunk.map(async (entry): Promise<ProjectInfo | null> => {
-        // Skip hidden files and the "." entry
-        if (!entry.startsWith('-')) return null;
+        // Skip hidden files and non-project entries
+        // On macOS/Linux: entries start with "-" (e.g., "-Users-foo-project")
+        // On Windows: entries start with drive letter (e.g., "D--Git-project")
+        const isValidProject = entry.startsWith('-') || /^[A-Z]--/.test(entry);
+        if (!isValidProject) return null;
 
         const fullPath = path.join(projectsDir, entry);
         try {
