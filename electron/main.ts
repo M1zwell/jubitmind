@@ -45,7 +45,7 @@ async function findFreePort(start: number): Promise<number> {
 }
 
 /** Wait for the Express server to be ready. */
-async function waitForServer(port: number, timeout = 15000): Promise<boolean> {
+async function waitForServer(port: number, timeout = 30000): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     try {
@@ -155,6 +155,7 @@ function startServer(port: number): ChildProcess {
   const proc = spawn(process.execPath, [serverPath], {
     env: {
       ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
       NODE_ENV: 'production',
       PORT: String(port),
       JUBITMIND_PROJECT_ROOT: app.getPath('home'),

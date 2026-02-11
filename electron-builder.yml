@@ -3,6 +3,7 @@ productName: JubitMind
 copyright: Copyright © 2026 Jubit.ai
 
 asar: false
+afterPack: ./scripts/afterPack.cjs
 
 directories:
   buildResources: build
