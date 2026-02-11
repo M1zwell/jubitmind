@@ -1,0 +1,40 @@
+redirectsOrigin = "config"
+plugins = []
+headers = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "/Users/jubit_nb0/JubitLLMNPMPlayground/jubitmind/landing"
+publishOrigin = "config"
+commandOrigin = "config"
+base = "/Users/jubit_nb0/JubitLLMNPMPlayground/jubitmind/landing"
+command = "echo 'Static site - no build needed'"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "https://www.chathogs.com/*"
+to = "https://chathogs.com/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

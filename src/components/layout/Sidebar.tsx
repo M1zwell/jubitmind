@@ -28,9 +28,12 @@ import {
   Cloud,
   ExternalLink,
   User,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { JUBIT_BASE } from '@/lib/config';
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
 
 const NAV_SECTIONS = [
   {
@@ -99,6 +102,20 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 flex-shrink-0 bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] flex flex-col h-full overflow-y-auto">
+      {IS_DEMO && (
+        <div className="px-3 py-2 bg-teal-500/15 border-b border-teal-500/30">
+          <p className="text-[11px] font-medium text-teal-400">Demo Mode — Sample Data</p>
+          <a
+            href="https://chathogs.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[10px] text-teal-300 hover:text-teal-200 transition-colors mt-0.5"
+          >
+            <Download className="w-2.5 h-2.5" />
+            Download JubitMind
+          </a>
+        </div>
+      )}
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-teal-500 flex items-center justify-center">

@@ -35,7 +35,12 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 const app = express();
 const PORT = Number(process.env.PORT) || (IS_PROD ? 3000 : 3001);
 
-app.use(cors({ origin: ['http://127.0.0.1:8081', 'http://localhost:8081', 'http://127.0.0.1:3000', 'http://localhost:3000'] }));
+const CORS_ORIGINS = [
+  'http://127.0.0.1:8081', 'http://localhost:8081',
+  'http://127.0.0.1:3000', 'http://localhost:3000',
+  ...(process.env.DEMO_MODE === 'true' ? ['https://demo.chathogs.com', 'https://chathogs.com'] : []),
+];
+app.use(cors({ origin: CORS_ORIGINS }));
 app.use(express.json({ limit: '10mb' }));
 
 // Initialize AI tool adapter registry
@@ -75,8 +80,11 @@ if (IS_PROD) {
   });
 }
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`[JubitMind] Running on http://127.0.0.1:${PORT}${IS_PROD ? ' (production)' : ' (development)'}`);
+// Bind to 0.0.0.0 on Fly.io (required for external access), 127.0.0.1 otherwise
+const BIND_HOST = process.env.FLY_APP_NAME ? '0.0.0.0' : '127.0.0.1';
+app.listen(PORT, BIND_HOST, () => {
+  const demoTag = process.env.DEMO_MODE === 'true' ? ' [DEMO]' : '';
+  console.log(`[JubitMind]${demoTag} Running on http://${BIND_HOST}:${PORT}${IS_PROD ? ' (production)' : ' (development)'}`);
   startAuditor();
 
   // Background: populate cache, classify, build index, then start insights

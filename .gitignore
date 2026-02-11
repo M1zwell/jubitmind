@@ -5,6 +5,7 @@ dist-electron-ts/
 providers.json
 /conversations/
 /data/
+!/data/demo-sessions/
 *.bak
 *.tmp
 .env

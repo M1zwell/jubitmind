@@ -6,6 +6,7 @@ import {
   type ClaudeMessage,
 } from '../claude-sessions.js';
 import { getAllSessions } from '../session-cache.js';
+import { PATHS } from '../config-resolver.js';
 
 function extractContent(msg: ClaudeMessage): string {
   if (!msg.message?.content) return '';
@@ -27,6 +28,7 @@ export const claudeCodeAdapter: AIToolAdapter = {
   description: 'Anthropic Claude Code CLI sessions from ~/.claude/',
 
   async isAvailable(): Promise<boolean> {
+    if (PATHS.isDemo) return true;
     const { existsSync } = await import('fs');
     const { homedir } = await import('os');
     const { join } = await import('path');

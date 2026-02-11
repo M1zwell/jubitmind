@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  command = "echo 'Static site - no build needed'"
+
+[[redirects]]
+  from = "https://www.chathogs.com/*"
+  to = "https://chathogs.com/:splat"
+  status = 301
+  force = true

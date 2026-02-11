@@ -1,450 +1,379 @@
-# JubitMind - Marketing & Brand Guide
+# JubitMind — Marketing & Branding Guide
 
----
+## Tagline
 
-## 1. Brand Identity
-
-### Name
-**JubitMind** — /ˈdʒuː.bɪt.maɪnd/
-
-### Brand Family
-| Brand | Meaning | Role |
-|-------|---------|------|
-| **dseek** | data seek · defence seek · deep seek | Parent ecosystem brand |
-| **jubit** | judgement + bit · jupiter | Intelligence & decision-making brand |
-| **JubitMind** | jubit + mind | AI interaction governance product |
-
-### Tagline (Primary)
 > **Human judgement meets AI mind. Every interaction, valued.**
 
-### Tagline Variants
-| Context | Tagline |
-|---------|---------|
-| Hero / Landing | *Every AI conversation tells a story. JubitMind makes sure it's told right.* |
-| Developer focus | *Your AI sessions, scored, tagged, and governed — automatically.* |
-| Enterprise pitch | *AI governance that starts where the conversation happens.* |
-| Security angle | *See everything your AI tools do. Score every risk. Tag every action.* |
-| Philosophy | *We value the finest humanity and the working with AI brains for better life.* |
-| Shortform | *Govern your AI. Value your mind.* |
+## One-liner
 
-### Brand Voice
-- **Authoritative but accessible**: We know AI governance deeply, but explain it simply
-- **Human-first**: Always lead with the human, not the technology
-- **Protective**: We guard, we audit, we preserve — never surveil
-- **Direct**: No buzzword soup. Say what it does, why it matters
-- **Inclusive**: Every person working with AI deserves this, not just enterprises
-
-### Color Palette (Dark Mode First)
-
-| Role | Color | Hex | Usage |
-|------|-------|-----|-------|
-| Primary | Teal | `#2DD4BF` | Accent, CTAs, active states |
-| Critical Risk | Red | `#F87171` | Critical risk badges, alerts |
-| High Risk | Orange | `#FB923C` | High risk indicators |
-| Medium Risk | Yellow | `#FACC15` | Medium risk indicators |
-| Low Risk | Green | `#4ADE80` | Low risk, safe indicators |
-| Technical Tag | Blue | `#60A5FA` | Technical category tags |
-| Sensitivity Tag | Red | `#F87171` | Sensitivity category tags |
-| Operational Tag | Purple | `#C084FC` | Operational category tags |
-| Manual Tag | Teal | `#5EEAD4` | User-defined tags |
-| Background | Dark Gray | `#0F172A` | Primary background |
-| Surface | Slate | `#1E293B` | Cards, panels |
-| Text Primary | White | `#F8FAFC` | Headlines, body text |
-| Text Muted | Gray | `#94A3B8` | Secondary text, timestamps |
+> The world's first open-source AI interaction audit platform — monitor, secure, and extract insights from every AI coding session across 11+ tools, locally and for free.
 
 ---
 
-## 2. Positioning
+## 5 Defensible "World's First" Claims
 
-### One-Liner
-JubitMind is an open-source AI interaction audit platform that automatically scores risk, classifies content, and governs every human-AI conversation across all your tools.
+### 1. World's First Multi-Tool AI Coding Session Aggregator
 
-### Elevator Pitch (30 seconds)
-Every developer using AI tools generates hundreds of conversations a month — code generation, debugging, architecture decisions, system commands. Some of those conversations touch credentials. Some execute destructive commands. Some create valuable intellectual property. But nobody tracks any of it.
+No other tool reads sessions from Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, Continue.dev, Codex CLI, Kilo Code, Kimi CLI, and Antigravity in one unified dashboard. Every other monitoring solution is locked to a single tool.
 
-JubitMind changes that. It discovers all your AI conversations, scores every tool action by risk level, auto-classifies content, and gives you a single dashboard to audit, tag, and govern your human-AI collaboration. Think of it as the audit trail your AI usage has been missing.
+### 2. World's First AI Agent Config Auditor
 
-### Positioning Statement
-**For** developers, engineering teams, and security professionals **who** use AI coding assistants daily, **JubitMind** is an AI interaction governance platform **that** automatically discovers, risk-scores, and classifies every human-AI conversation. **Unlike** basic chat history viewers or LLM observability tools, JubitMind focuses on **protecting the human side** — tracking what was shared, what risks were taken, and what value was created in the collaboration between human judgement and AI minds.
+JubitMind scans 17+ config file formats (CLAUDE.md, .cursorrules, .windsurfrules, copilot-instructions.md, .aider.conf.yml, codex.md, .clinerules, AGENTS.md, and more) for leaked API keys, hardcoded secrets, dangerous shell commands, and permission bypasses. No other tool does this.
 
-### Category
-**AI Interaction Governance** (new category)
+### 3. World's First Real-Time Risk Scoring Engine for AI Coding Interactions
 
-Adjacent categories: AI Safety, LLM Observability, Developer Tooling, GRC (Governance Risk Compliance)
+30+ detection patterns classify every tool call as Critical/High/Medium/Low in real time — catching credential exposure, destructive `rm -rf` commands, SQL injection in generated code, unauthorized `git push --force`, and more. No other tool provides per-interaction security grading.
 
----
+### 4. World's First Local-First AI Governance Platform
 
-## 3. Target Audiences & Messaging
+Your conversations never leave your machine. Zero cloud dependency for core features. Unlike SaaS monitoring tools that require you to send your proprietary code to yet another third party, JubitMind runs entirely on localhost.
 
-### Audience 1: Individual Developers
+### 5. World's First Open-Source AI Interaction Intelligence Engine
 
-**Pain**: "I know I solved this problem with Claude last week, but I can't find the conversation. Also, did I accidentally paste my API keys?"
-
-**Message**: *Find any prompt. Score every risk. Never lose a conversation again.*
-
-**Key Features**:
-- All conversations from all IDEs in one place
-- Search across every session you've ever had
-- Risk badges show you at a glance if anything dangerous happened
-- Auto-tags organize conversations by what you were doing
-- Export any session as JSON for your records
-
-**CTA**: *Start governing your AI conversations in 60 seconds. `npm install && npm run dev`*
-
-### Audience 2: Engineering Teams & Managers
-
-**Pain**: "I have no idea what AI tools are doing across my team. Are they pushing code directly? Running destructive commands? Sharing proprietary code?"
-
-**Message**: *See what every AI assistant does across your team. Risk-scored, classified, auditable.*
-
-**Key Features**:
-- Multi-project aggregation across all team members' workstations
-- Risk scoring surfaces critical and high-risk operations automatically
-- Auto-classification tags conversations by domain (security, devops, architecture)
-- Filter by risk level to focus security reviews
-- Manual tagging for incident tracking and project organization
-
-**CTA**: *Deploy JubitMind for your team. Know what AI is doing.*
-
-### Audience 3: Security & Compliance Professionals
-
-**Pain**: "Our SOC2 auditor asked how we govern AI tool usage. We had nothing to show them."
-
-**Message**: *The audit trail your AI governance policy needs. Risk-scored, tagged, exportable.*
-
-**Key Features**:
-- Every AI tool action classified: Critical / High / Medium / Low
-- Automatic detection of credential exposure, destructive commands, data exfiltration patterns
-- Sensitivity tags flag security, privacy, legal, and IP-related conversations
-- Export conversation records with risk assessments for compliance evidence
-- Immutable conversation history from native JSONL logs
-
-**CTA**: *Add AI governance to your compliance story. Open-source, self-hosted, auditor-ready.*
-
-### Audience 4: AI Researchers & Prompt Engineers
-
-**Pain**: "I've crafted thousands of prompts across dozens of sessions. I need to find patterns, track what works, and build a reusable library."
-
-**Message**: *Your prompt laboratory. Every interaction recorded, classified, and searchable.*
-
-**Key Features**:
-- Rich message rendering with full tool_use visibility
-- Auto-tags identify conversation types (code-generation, debugging, architecture)
-- Manual tags for custom categorization and methodology tracking
-- Full session export for external analysis
-- Cross-project search to find prompt patterns
-
-**CTA**: *Turn your AI conversations into a knowledge base.*
+Combines Google's LangExtract for structured entity extraction, automated security auditing, prompt pattern analysis, cost tracking, and one-click PDF/Markdown report generation — all under Apache 2.0 license.
 
 ---
 
-## 4. Feature Highlights
+## Product Descriptions
 
-### Highlight 1: Risk Scoring Engine
+### Short (50 words)
 
-**Headline**: *Every AI action, scored by risk. Instantly.*
+JubitMind is a free, open-source desktop app that monitors all your AI coding tools in one dashboard. It scores security risks in real time, audits agent configurations for leaked secrets, tracks costs across models, and generates comprehensive PDF reports — all running locally on your machine.
 
-**Copy**: When Claude runs `rm -rf`, that's a critical risk. When it `git push`es to production, that's high. When it reads a file, that's low. JubitMind scores every single tool action in every conversation, giving you instant visibility into what happened and how dangerous it was.
+### Medium (150 words)
 
-**Visual**: Session card with red CRITICAL badge, showing `rm -rf /var/data` in an expandable tool_use block with red left border.
+JubitMind is the world's first open-source AI interaction audit platform. It aggregates sessions from 11+ AI coding tools — Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, and more — into a single dashboard with real-time security risk scoring, automated compliance auditing, and one-click report generation.
 
-**Stats callout**:
-- 4 risk levels: Critical, High, Medium, Low
-- 30+ risk patterns detected automatically
-- Session-level summary: total tool uses, risk distribution, top risks
+Every tool call is graded Critical/High/Medium/Low using 30+ detection patterns that catch credential exposure, destructive commands, SQL injection, and unauthorized operations. A background auditor scans every 30 minutes. An agent config auditor checks 17+ config file formats for leaked API keys and dangerous permissions.
 
----
+Built local-first: your conversations never leave your machine. No subscription, no cloud dependency, no data sharing. Available as a native Mac/Windows desktop app or Docker container.
 
-### Highlight 2: Auto-Classification Tags
+Track costs across models, analyze prompt patterns, extract structured entities with Google's LangExtract, and export everything as infographic-rich PDFs.
 
-**Headline**: *Your conversations, classified. Without lifting a finger.*
+Free and open-source under Apache 2.0.
 
-**Copy**: JubitMind scans every conversation and automatically tags it by what you were doing. Code generation. Debugging. Architecture design. Security work. Privacy-sensitive discussions. IP creation. All classified, all filterable, all organized.
+### Full (300 words)
 
-**Visual**: TagManager panel showing auto-tags grouped by category (blue for technical, red for sensitivity, purple for operational) plus user-added teal manual tags.
+JubitMind is the world's first open-source AI interaction audit platform — purpose-built for developers, security teams, and organizations that use AI coding tools at scale.
 
-**Tag categories**:
-- Technical: code-generation, debugging, architecture, devops, testing, refactoring
-- Sensitivity: security, privacy, ip-creation, legal, safety
-- Operational: file-modification, system-command, external-api, data-access
+**The Problem:** Developers use 3-5 AI coding tools daily. Each generates hundreds of interactions involving proprietary code, credentials, infrastructure commands, and architectural decisions. Today, there is zero visibility into what these tools do. Sessions expire. Secrets leak silently. Costs spiral. Compliance teams have no audit trail.
 
----
+**The Solution:** JubitMind aggregates sessions from 11+ AI coding tools — Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, Continue.dev, Codex CLI, Kilo Code, Kimi CLI, and Antigravity — into one unified dashboard.
 
-### Highlight 3: Multi-Source Aggregation
+**Security-first:** Every tool call is graded in real time using a 30+ pattern risk scoring engine that catches credential exposure, destructive shell commands, SQL injection, and unauthorized git operations. A background security auditor scans all sessions every 30 minutes, generating structured reports with severity-ranked findings.
 
-**Headline**: *One dashboard. Every AI conversation. Every project. Every IDE.*
+**Configuration auditing:** JubitMind is the only tool that scans 17+ agent config file formats (CLAUDE.md, .cursorrules, .windsurfrules, copilot-instructions.md, and more) for leaked API keys, hardcoded secrets, dangerous commands, and permission bypasses.
 
-**Copy**: Whether you're in VS Code, Cursor, Antigravity, or raw terminal — JubitMind finds every Claude Code session automatically. Nine projects, 300 sessions, 3GB of conversation data? Loaded in under 5 seconds. Refreshed every 10 seconds. Zero configuration.
+**Intelligence:** Analyze prompt patterns, track token costs across models, detect recurring requests, and extract structured entities using Google's LangExtract. Generate comprehensive infographic-rich PDF reports with one click — complete with bar charts, donut charts, risk gauges, and actionable recommendations.
 
-**Visual**: Session list showing sessions from different projects with purple project badges (JubitLLMNPMPlayground, dseek-web, ccass-analysis, etc.)
+**Local-first:** Your conversations never leave your machine. No cloud dependency. No subscription. No data sharing. Runs as a native Mac/Windows desktop app, web app, or Docker container.
+
+**LiteLLM integration:** Connect to your LiteLLM proxy for model routing visibility and spend tracking across your entire AI infrastructure.
+
+Free and open-source under Apache 2.0. Built by Jubit.ai.
 
 ---
 
-### Highlight 4: Rich Message Rendering
+## Feature Matrix
 
-**Headline**: *See exactly what your AI did. Every tool call. Every command. Every file change.*
+### Monitor
 
-**Copy**: JubitMind doesn't just show you text messages. It renders every tool_use block with risk-colored borders, expandable input/output, thinking blocks you can peek into, and tool results. You see the full picture of what happened in every conversation.
+| Feature | Description |
+|---------|-------------|
+| 11+ AI Tool Support | Claude Code, Cursor, Copilot, Windsurf, Aider, Continue.dev, Codex, Kilo, Kimi, Antigravity |
+| Unified Dashboard | All sessions from all tools in one view |
+| Session Browser | Search, filter by project, risk, tags, date |
+| Rich Message Rendering | Tool calls, thinking blocks, code, markdown |
+| Real-time Refresh | Watch sessions update as you work |
 
-**Visual**: Message thread showing a Bash tool_use block (orange/high risk) with `git push origin main`, an Edit tool_use (yellow/medium) modifying source code, and a Read tool_use (green/low) with file content.
+### Secure
 
----
+| Feature | Description |
+|---------|-------------|
+| Risk Scoring Engine | 30+ patterns: credentials, destructive commands, SQL injection |
+| 4-Level Severity | Critical / High / Medium / Low per interaction |
+| Background Auditor | Automated scans every 30 minutes |
+| Config Auditor | Scan 17+ agent config formats for leaked secrets |
+| Tag Classification | 14 auto-tag categories: security, privacy, IP, legal, safety |
 
-## 5. Landing Page Structure
+### Analyze
 
-### Hero Section
-```
-[Logo: JubitMind]
+| Feature | Description |
+|---------|-------------|
+| Prompt Pattern Analysis | Common themes, recurring requests, average length |
+| Cost Tracking | Token usage and estimated cost by model |
+| Model Comparison | Sessions, tokens, cost, distribution across models |
+| Tool Usage Trends | Most-used tools, risk exposure over time |
+| LLM Session Analysis | Deep analysis powered by AI |
 
-Human judgement meets AI mind.
-Every interaction, valued.
+### Extract
 
-The open-source AI interaction audit platform.
-Risk-score, classify, and govern every human-AI conversation.
+| Feature | Description |
+|---------|-------------|
+| LangExtract Integration | Google's structured extraction engine |
+| 3 Extraction Schemas | Permission grants, risk events, code artifacts |
+| Multi-Provider LLM | Gemini, OpenAI, DeepSeek, Qwen, Ollama |
+| Source Grounding | Char-level offset citations |
+| HTML Visualizations | Interactive entity visualization |
 
-[Get Started →]  [View on GitHub →]
+### Report
 
-[Hero Screenshot: Dashboard showing sessions with risk badges and tag filters]
-```
+| Feature | Description |
+|---------|-------------|
+| One-Click PDF Reports | Infographic-rich: bar charts, donut charts, risk gauges, stat cards |
+| Markdown Export | Clean markdown for documentation |
+| Sample Reports | Preview report format with rich demo data |
+| Report History | Track reports over time |
+| Executive Summary | Health status, key metrics, top themes, recommendations |
 
-### Problem Section
-```
-You use AI every day.
-But do you know what it's doing?
+### Configure
 
-[Icon: Terminal]               [Icon: Shield]              [Icon: Tag]
-Scattered across IDEs          Zero risk visibility         No classification
-Your conversations live in     Which sessions touched        Is it code generation?
-5 different tools. Good luck   credentials? Ran destructive  Security work? IP creation?
-finding that one prompt.       commands? You don't know.     Nobody tracks this.
-```
+| Feature | Description |
+|---------|-------------|
+| AI Provider Management | Add/configure providers with API keys |
+| MCP Server Browser | Discover and manage MCP servers |
+| Permissions Viewer | See Claude Code's allowed tools |
+| CLAUDE.md Editor | Edit project instructions in-app |
+| Skills & Commands | Browse available skills and commands |
+| Memory Manager | View and search stored memories |
 
-### Solution Section
-```
-JubitMind: Your AI governance layer.
+### Deploy
 
-[Screenshot: Full dashboard with session list, risk badges, tag filters, TagManager panel]
-
-→ Auto-discovers all AI sessions across projects and IDEs
-→ Risk-scores every tool action (Critical / High / Medium / Low)
-→ Auto-classifies conversations (Technical / Sensitivity / Operational)
-→ Filters by risk level, tags, project, and source
-→ Rich tool_use rendering with expandable input/output
-→ Manual tagging for custom organization
-→ Export for compliance evidence
-```
-
-### Features Grid
-```
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ Risk Scoring     │  │ Auto-Tags        │  │ Multi-Source      │
-│                  │  │                  │  │                  │
-│ 4 risk levels    │  │ 3 categories     │  │ All IDEs         │
-│ 30+ patterns     │  │ 12+ auto-tags    │  │ All projects     │
-│ Real-time        │  │ Confidence-based │  │ Auto-discovery   │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ Rich Rendering   │  │ Manual Tags      │  │ Export & Import  │
-│                  │  │                  │  │                  │
-│ tool_use blocks  │  │ Custom labels    │  │ JSON export      │
-│ thinking blocks  │  │ Per-session      │  │ Compliance-ready │
-│ risk-colored     │  │ Filterable       │  │ Portable         │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-```
-
-### Social Proof Section (Post-Launch)
-```
-Trusted by developers who take AI governance seriously.
-
-[Testimonial cards]
-[GitHub stars badge]
-[Usage stats: X sessions governed, Y risks detected]
-```
-
-### CTA Section
-```
-Start governing your AI conversations.
-Open-source. Self-hosted. Free.
-
-npm install && npm run dev
-
-[Get Started →]  [Read the Docs →]  [Star on GitHub →]
-
-Part of the dseek · jubit ecosystem
-```
+| Feature | Description |
+|---------|-------------|
+| Desktop App | Native Mac (universal) + Windows (NSIS/portable) |
+| Web App | Standalone browser-based deployment |
+| Docker | One-command containerized deployment |
+| First-Run Wizard | Guided setup with tool auto-detection |
+| LiteLLM Integration | Connect to proxy for routing + spend data |
 
 ---
 
-## 6. Social Media & Launch Copy
+## Pricing
 
-### GitHub Repository Description
-> JubitMind - AI Interaction Audit & Governance Platform. Risk-score, classify, and govern every human-AI conversation. Open-source.
+### Free. Forever.
 
-### GitHub Topics
-`ai-governance` `ai-safety` `llm-audit` `claude-code` `ai-tools` `risk-scoring` `conversation-history` `developer-tools` `compliance` `ai-ethics`
+- No subscription
+- No usage limits
+- No cloud dependency
+- No data collection
+- No "premium" tier
 
-### Twitter/X Launch Thread
+**Why free?** JubitMind is built by [Jubit.ai](https://jubit.ai) as infrastructure for the AI development ecosystem. We believe AI governance should be accessible to every developer, not locked behind enterprise pricing.
 
-**Tweet 1 (Hook)**:
-> Every developer using AI generates 100+ conversations/month.
->
-> Nobody tracks what happens in them.
->
-> Introducing JubitMind — the AI interaction audit platform.
->
-> Open-source. Self-hosted. Free.
->
-> [screenshot]
+---
 
-**Tweet 2 (Risk)**:
-> Your AI assistant ran `rm -rf` last Tuesday.
-> It `git push --force`d to main on Wednesday.
-> It read your `.env` file on Thursday.
->
-> Did you know?
->
-> JubitMind scores every tool action by risk:
-> Critical → High → Medium → Low
->
-> [screenshot of risk badges]
+## Target Audiences
 
-**Tweet 3 (Tags)**:
-> JubitMind auto-classifies every conversation:
->
-> Technical: code-generation, debugging, architecture
-> Sensitivity: security, privacy, ip-creation, legal
-> Operational: file-modification, system-command
->
-> No configuration. No ML training. Works out of the box.
+### 1. Solo Developers (Primary)
 
-**Tweet 4 (Multi-source)**:
-> VS Code? Cursor? Terminal? Antigravity?
->
-> JubitMind discovers ALL your Claude Code sessions.
-> Every project. Every IDE. One dashboard.
->
-> 300+ sessions, 3GB of data → loaded in 5 seconds.
+**Pain:** "I use Claude Code and Cursor daily. I've lost count of the useful prompts and solutions buried in expired sessions. I have no idea how much I'm spending."
 
-**Tweet 5 (Philosophy + CTA)**:
-> We value the finest humanity and the working with AI brains for better life.
->
-> Every prompt you write. Every decision you make. Every solution you co-create.
-> These are records of human intelligence amplified by AI.
->
-> JubitMind helps you value that.
->
-> github.com/M1zwell/jubitmind
+**Message:** Never lose a valuable AI interaction again. JubitMind preserves, searches, and organizes every session from every tool you use — for free, on your machine.
 
-### Hacker News Post
+### 2. Engineering Teams (Primary)
 
-**Title**: Show HN: JubitMind – Open-source AI interaction audit and governance platform
+**Pain:** "Our team of 20 uses 4 different AI tools. We have zero visibility into what's happening. Someone accidentally committed an API key that Claude generated last week."
 
-**Body**:
-> Hey HN,
+**Message:** One dashboard for your entire team's AI tool usage. Real-time risk scoring catches credential leaks and destructive commands before they ship. Background audits run every 30 minutes.
+
+### 3. Security & Compliance (Secondary)
+
+**Pain:** "Our SOC 2 auditor asked how we govern AI-assisted development. We had nothing to show them."
+
+**Message:** Automated audit trails, risk-classified interactions, config file scanning, and one-click compliance reports. JubitMind is the governance layer your AI workflow is missing.
+
+### 4. AI Researchers & Prompt Engineers (Secondary)
+
+**Pain:** "I want to understand patterns in how I use AI tools — what works, what's repetitive, what costs the most."
+
+**Message:** Prompt pattern analysis, theme detection, recurring request identification, model comparison, and structured entity extraction. Turn your AI history into actionable intelligence.
+
+---
+
+## Competitive Positioning
+
+| Feature | JubitMind | Competitors |
+|---------|-----------|-------------|
+| Multi-tool aggregation (11+ tools) | Yes | No (single-tool only) |
+| Risk scoring engine (30+ patterns) | Yes | No |
+| Agent config auditing (17+ formats) | Yes | No |
+| LangExtract structured extraction | Yes | No |
+| Local-first architecture | Yes | Cloud-only |
+| Real-time background auditor | Yes | No |
+| One-click PDF report generation | Yes | No |
+| Desktop + web + Docker deployment | Yes | Web-only |
+| 100% open-source (Apache 2.0) | Yes | Proprietary |
+| Free forever | Yes | $50K+/year |
+
+### vs. "Just reading the logs manually"
+
+JubitMind adds risk scoring, auto-tagging, cross-tool aggregation, search, analytics, and reporting on top of raw session data. It's the difference between reading Apache logs and using Datadog.
+
+### vs. Enterprise AI governance (Robust Intelligence, Lakera)
+
+Cloud-based, expensive ($50K+/year), focused on model-level guardrails. JubitMind is local-first, free, focused on developer-level interaction auditing. Complementary, not competing.
+
+### vs. AI analytics tools (Langfuse, Helicone)
+
+Observability platforms for production LLM apps (API calls, traces, evaluations). JubitMind monitors the developer's own AI coding tools during development. Different use case.
+
+### vs. Building your own scripts
+
+JubitMind replaces the 10+ bash scripts, SQLite queries, and manual processes teams cobble together. Pre-built risk scoring, 11 tool adapters, PDF reporting, and a polished desktop app — all maintained and updated.
+
+---
+
+## Brand Identity
+
+### Name
+
+**JubitMind** — "Jubit" (from Jubit.ai) + "Mind" (AI intelligence + human mindfulness)
+
+### Color Palette
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Teal (Primary) | `#14B8A6` | CTAs, accents, active states |
+| Dark Background | `#0D1117` | App background, header banner |
+| Card Background | `#161B22` | Cards, panels, dialogs |
+| Border | `#30363D` | Borders, dividers |
+| Text Primary | `#C9D1D9` | Body text |
+| Text Muted | `#8B949E` | Secondary/helper text |
+| Red (Critical) | `#F85149` | Critical risk, urgent alerts |
+| Orange (High) | `#F97316` | High risk, warnings |
+| Yellow (Warning) | `#EAB308` | Medium risk, billing alerts |
+| Green (Safe) | `#22C55E` | Low risk, healthy status |
+
+### Voice & Tone
+
+- **Authoritative** — We know AI security. We built the tooling.
+- **Developer-first** — Technical accuracy over marketing fluff.
+- **Transparent** — Open-source, local-first, no hidden costs.
+- **Concise** — Respect the developer's time.
+
+---
+
+## Social Copy
+
+### Twitter / X
+
+> Introducing JubitMind — the world's first open-source AI interaction audit platform.
 >
-> I built JubitMind because I realized I had 300+ Claude Code conversations across 9 projects and zero visibility into what happened in them.
+> Monitor 11+ AI coding tools. Score security risks in real time. Generate PDF reports with one click.
 >
-> JubitMind is a self-hosted platform that:
->
-> - Auto-discovers all Claude Code sessions across all projects and IDEs
-> - Risk-scores every tool action (rm -rf = critical, git push = high, Read = low)
-> - Auto-classifies conversations (code-generation, security, ip-creation, etc.)
-> - Lets you filter by risk level, tags, project, and search
-> - Renders tool_use blocks with risk-colored borders and expandable I/O
->
-> It's a React + Express app that reads Claude Code's native JSONL session files. No database, no cloud, no accounts. Everything stays on your machine.
->
-> The bigger vision: as we collaborate more with AI, we need governance for the human side — tracking what was shared, what risks were taken, and what value was created. Not just LLM observability for production apps, but interaction audit for the humans using AI every day.
->
-> Stack: React 18, Vite, TanStack Query, Tailwind, Express, TypeScript.
->
-> GitHub: https://github.com/M1zwell/jubitmind
->
-> Would love feedback on the risk taxonomy and auto-tagging approach. What patterns should we detect? What categories are missing?
+> Free forever. Runs locally. Your conversations never leave your machine.
 
 ### Product Hunt
 
-**Tagline**: Human judgement meets AI mind. Every interaction, valued.
+> **JubitMind — AI Interaction Audit Platform**
+>
+> The world's first tool that aggregates sessions from Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, and 6 more AI tools into one dashboard.
+>
+> - Real-time risk scoring (30+ security patterns)
+> - Agent config auditing (17+ file formats)
+> - One-click infographic PDF reports
+> - Prompt pattern analysis & cost tracking
+> - Structured entity extraction (Google LangExtract)
+>
+> 100% local. 100% free. 100% open-source.
 
-**Description**: JubitMind is an open-source AI interaction audit platform that automatically discovers, risk-scores, and classifies every human-AI conversation across your development tools. See everything your AI assistant does — scored by risk, tagged by category, governed by you.
+### LinkedIn
 
-**Categories**: Developer Tools, AI, Open Source, Security
-
----
-
-## 7. Content Marketing Roadmap
-
-### Blog Posts (First 90 Days)
-
-| Week | Title | Audience |
-|------|-------|----------|
-| Launch | *Why Every Developer Needs an AI Audit Trail* | Developers |
-| 2 | *The Risk Taxonomy: How We Score AI Tool Actions* | Security |
-| 4 | *Building an AI Governance Culture in Your Engineering Team* | Managers |
-| 6 | *From Chat History to Knowledge Asset: The JubitMind Philosophy* | General |
-| 8 | *SOC2 and AI: How to Answer "How Do You Govern AI Usage?"* | Compliance |
-| 10 | *The State of AI Interaction Governance (2026 Report)* | Industry |
-| 12 | *JubitMind v1.1: Multi-Provider Support and What's Next* | Product |
-
-### Documentation Pages
-
-| Page | Purpose |
-|------|---------|
-| Getting Started | 60-second quickstart guide |
-| Risk Scoring Guide | Full pattern list, scoring rationale, customization |
-| Auto-Tag Reference | All tags, categories, detection rules, confidence thresholds |
-| API Reference | All REST endpoints with examples |
-| Architecture Guide | System design, data flow, extension points |
-| Self-Hosting Guide | Deployment options (Docker, PM2, systemd) |
-| Contributing Guide | How to add risk patterns, tags, and data source adapters |
-| Security & Privacy | Data handling, local-first architecture, threat model |
+> As AI coding tools become standard in software development, a critical gap has emerged: **zero visibility into what these tools actually do**.
+>
+> Sessions expire. Credentials leak silently. Costs spiral without tracking. Compliance teams have no audit trail.
+>
+> Today we're launching **JubitMind** — the world's first open-source AI interaction audit platform.
+>
+> It aggregates sessions from 11+ AI tools (Claude Code, Cursor, Copilot, Windsurf, Aider, and more) into one dashboard with:
+>
+> - Real-time security risk scoring (30+ detection patterns)
+> - Automated background security audits every 30 minutes
+> - Agent configuration file scanning for leaked secrets
+> - Token cost tracking and model comparison
+> - One-click infographic PDF report generation
+>
+> Everything runs locally on your machine. No cloud dependency. No subscription.
+>
+> Free and open-source under Apache 2.0.
 
 ---
 
-## 8. Competitive Messaging
+## Landing Page Structure
 
-### vs. "Just use ChatGPT/Claude history"
-> Chat history shows you *what was said*. JubitMind shows you *what was done* — every file read, every command executed, every risk taken. Scored, classified, and auditable.
+```
+[Hero]
+  "The world's first open-source AI interaction audit platform"
+  "Monitor, secure, and extract insights from every AI coding session — locally and for free."
+  [Download for Mac] [Download for Windows] [View on GitHub]
+  [Hero screenshot: Dashboard with risk badges, stat cards, session list]
 
-### vs. LangSmith / Langfuse
-> LLM observability tools monitor your *production AI applications*. JubitMind governs your *human-AI development conversations*. Different problem. Different solution.
+[Social Proof Bar]
+  "11+ AI tools" | "30+ risk patterns" | "17+ config formats" | "Apache 2.0" | "Free forever"
 
-### vs. "We have a company AI policy"
-> A policy says "don't paste credentials into AI." JubitMind *detects when someone does*. A policy says "review destructive operations." JubitMind *scores them automatically*.
+[Problem]
+  "Your AI coding tools are a black box"
+  - Sessions expire and valuable work is lost
+  - Credentials leak in AI-generated code
+  - No visibility into costs across tools
+  - Compliance teams have zero audit trail
 
-### vs. "We'll build it internally"
-> You could. Or you could start governing AI interactions today with an open-source tool that reads your existing session files with zero configuration. Ship your product instead.
+[Solution — 4 pillars]
+  Monitor → Secure → Analyze → Report
+  [Screenshot of each]
+
+["World's First" Section]
+  5 claims with icons
+
+[Sample Report Preview]
+  [Embedded 3-page PDF]
+  [Download Sample PDF]
+
+[How It Works]
+  1. Install (one-click DMG/EXE)
+  2. Auto-discovers your AI tools
+  3. Browse all sessions unified
+  4. Risk scoring runs automatically
+  5. Generate reports with one click
+
+[Feature Grid]
+  [Interactive feature matrix]
+
+[Pricing]
+  "Free. Forever. No catches."
+
+[FAQ]
+
+[CTA]
+  [Download] [GitHub] [Docker]
+  "Built by Jubit.ai — Human judgement meets AI mind."
+```
 
 ---
 
-## 9. Metrics & KPIs
+## SEO Keywords
 
-### Awareness Metrics
-| Metric | 30-Day Target | 90-Day Target |
-|--------|---------------|---------------|
-| GitHub Stars | 100 | 500 |
-| GitHub Forks | 10 | 50 |
-| HN Points | 100+ | - |
-| Twitter Impressions | 50K | 200K |
+**Primary:** AI interaction audit, AI coding tool monitor, Claude Code dashboard, AI security audit, AI governance open source
 
-### Adoption Metrics
-| Metric | 30-Day Target | 90-Day Target |
-|--------|---------------|---------------|
-| npm installs | 200 | 1,000 |
-| Active instances (self-reported) | 50 | 200 |
-| GitHub Issues opened | 20 | 100 |
-| Contributors | 3 | 10 |
+**Secondary:** AI session viewer, Claude Code monitor, Cursor session history, GitHub Copilot audit, AI cost tracking, LLM interaction monitor
 
-### Engagement Metrics
+**Long-tail:** "how to monitor AI coding tool usage", "audit AI-generated code for security", "track Claude Code costs", "open source AI governance platform", "monitor multiple AI coding tools"
+
+---
+
+## Launch Metrics (Month 1 Targets)
+
 | Metric | Target |
 |--------|--------|
-| Avg sessions governed per user | 50+ |
-| Risk scores computed per user | 100+ |
-| Manual tags added per user | 10+ |
-| Return usage (7-day) | 60%+ |
+| GitHub stars | 500+ |
+| Downloads (Mac+Win) | 1,000+ |
+| Docker pulls | 500+ |
+| Product Hunt upvotes | 200+ |
+| Hacker News frontpage | 1 post |
+| Active weekly users | 300+ |
 
 ---
 
-*JubitMind — Part of the dseek · jubit ecosystem*
-*We value the finest humanity and the working with AI brains for better life.*
+*JubitMind — by Jubit.ai*
+*Human judgement meets AI mind. Every interaction, valued.*

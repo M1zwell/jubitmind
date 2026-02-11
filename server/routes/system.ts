@@ -14,6 +14,7 @@ router.get('/health', (_req, res) => {
       projectRoot: PATHS.projectRoot,
       claudeDir: PATHS.claudeDir,
       cliBinary: PATHS.cliBinary,
+      demoMode: PATHS.isDemo || false,
     });
   } catch (err) {
     res.json({
@@ -23,6 +24,7 @@ router.get('/health', (_req, res) => {
       projectRoot: PATHS.projectRoot,
       claudeDir: PATHS.claudeDir,
       error: (err as Error).message,
+      demoMode: PATHS.isDemo || false,
     });
   }
 });
