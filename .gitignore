@@ -10,3 +10,9 @@ providers.json
 .env.local
 .DS_Store
 .vercel
+
+# Python sidecar
+__pycache__/
+*.pyc
+sidecar/config.json
+sidecar/data/

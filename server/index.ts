@@ -20,6 +20,8 @@ import auditorRoutes from './routes/auditor.js';
 import agentConfigRoutes from './routes/agent-configs.js';
 import explorerRoutes from './routes/explorer.js';
 import insightsRoutes from './routes/insights.js';
+import extractionsRoutes from './routes/extractions.js';
+import reportsRoutes from './routes/reports.js';
 import { initAdapters } from './services/adapters/index.js';
 import { startAuditor } from './services/auditor-agent.js';
 import { classifyPendingSessions, refreshAll } from './services/session-cache.js';
@@ -57,6 +59,8 @@ app.use('/api/auditor', auditorRoutes);
 app.use('/api/agent-configs', agentConfigRoutes);
 app.use('/api/explorer', explorerRoutes);
 app.use('/api/insights', insightsRoutes);
+app.use('/api/extractions', extractionsRoutes);
+app.use('/api/reports', reportsRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler

@@ -1,22 +1,48 @@
-import { RefreshCw, LayoutDashboard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { RefreshCw, LayoutDashboard, FileBarChart } from 'lucide-react';
 import { useAdapterList, useUnifiedStats } from '@/hooks/useUnifiedStats';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useConversationStats } from '@/hooks/useConversations';
+import { useGenerateReport } from '@/hooks/useReports';
 import { StatsCards } from './StatsCards';
 import { ToolStatusGrid } from './ToolStatusGrid';
 import { RecentSessions } from './RecentSessions';
+import { ReportPreviewDialog } from '../reports/ReportPreviewDialog';
+import type { CombinedReport } from '@/lib/types';
 
 export function HomePage() {
   const { data: adapters, isLoading: adaptersLoading, refetch: refetchAdapters } = useAdapterList();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats, isFetching } = useUnifiedStats();
   const { data: convStats } = useConversationStats();
+  const generateReport = useGenerateReport();
+  const [showReport, setShowReport] = useState<CombinedReport | null>(null);
 
   const { data: recentData } = useQuery({
     queryKey: ['adapter-sessions', 'claude-code', { limit: 8 }],
     queryFn: () => api.adapters.sessions('claude-code', { limit: 8 }),
     staleTime: 30_000,
   });
+
+  // Listen for menu-triggered report generation (Electron)
+  useEffect(() => {
+    const jm = (window as unknown as { jubitmind?: { onMenuExportReport?: (cb: () => void) => () => void } }).jubitmind;
+    if (jm?.onMenuExportReport) {
+      const cleanup = jm.onMenuExportReport(() => {
+        if (!generateReport.isPending) {
+          generateReport.mutate(undefined);
+        }
+      });
+      return cleanup;
+    }
+  }, [generateReport]);
+
+  // Show dialog when report is generated
+  useEffect(() => {
+    if (generateReport.isSuccess && generateReport.data?.report) {
+      setShowReport(generateReport.data.report);
+    }
+  }, [generateReport.isSuccess, generateReport.data]);
 
   const isLoading = adaptersLoading || statsLoading;
   const availableCount = adapters?.filter((a) => a.available).length || 0;
@@ -38,14 +64,24 @@ export function HomePage() {
             Local AI Monitor
           </span>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={isFetching}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => generateReport.mutate(undefined)}
+            disabled={generateReport.isPending}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors disabled:opacity-50"
+          >
+            <FileBarChart className={`w-3.5 h-3.5 ${generateReport.isPending ? 'animate-pulse' : ''}`} />
+            {generateReport.isPending ? 'Generating...' : 'Generate Report'}
+          </button>
+          <button
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -122,6 +158,11 @@ export function HomePage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Report Preview Dialog */}
+      {showReport && (
+        <ReportPreviewDialog report={showReport} onClose={() => setShowReport(null)} />
       )}
     </div>
   );

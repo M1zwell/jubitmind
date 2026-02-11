@@ -24,6 +24,9 @@ import { AuditorPage } from '@/components/auditor/AuditorPage';
 import { AgentConfigsPage } from '@/components/config/AgentConfigsPage';
 import { InteractionExplorerPage } from '@/pages/InteractionExplorerPage';
 import { InsightsPage } from '@/pages/InsightsPage';
+import { ExtractionsPage } from '@/pages/ExtractionsPage';
+import { ReportsPage } from '@/pages/ReportsPage';
+import { SetupWizardPage } from '@/pages/SetupWizardPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +43,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/setup-wizard" element={<SetupWizardPage />} />
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/terminal" element={<CliRunner />} />
@@ -62,6 +66,8 @@ export default function App() {
             <Route path="/agent-configs" element={<AgentConfigsPage />} />
             <Route path="/explorer" element={<InteractionExplorerPage />} />
             <Route path="/insights" element={<InsightsPage />} />
+            <Route path="/extractions" element={<ExtractionsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/health" element={<UsageDashboard />} />
           </Route>
         </Routes>

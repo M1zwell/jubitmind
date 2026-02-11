@@ -8,4 +8,14 @@ contextBridge.exposeInMainWorld('jubitmind', {
     chrome: process.versions.chrome,
     electron: process.versions.electron,
   },
+
+  // First-run wizard
+  isFirstRun: () => ipcRenderer.invoke('is-first-run'),
+  completeSetup: () => ipcRenderer.invoke('complete-setup'),
+
+  // Menu events
+  onMenuExportReport: (callback: () => void) => {
+    ipcRenderer.on('menu-export-report', () => callback());
+    return () => { ipcRenderer.removeAllListeners('menu-export-report'); };
+  },
 });

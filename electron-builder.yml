@@ -9,6 +9,7 @@ directories:
 files:
   - dist/**/*
   - electron/**/*.js
+  - electron/splash.html
   - package.json
   - providers.json
   - node_modules/**/*

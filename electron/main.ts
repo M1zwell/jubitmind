@@ -1,13 +1,35 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell, Menu, ipcMain, screen } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawn, type ChildProcess } from 'child_process';
 import net from 'net';
+import Store from 'electron-store';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: ChildProcess | null = null;
 let serverPort = 3000;
+
+// ---------------------------------------------------------------------------
+// Persistent store (window state, first-run flag)
+// ---------------------------------------------------------------------------
+
+interface StoreSchema {
+  windowBounds: { x?: number; y?: number; width: number; height: number; isMaximized: boolean };
+  firstRunComplete: boolean;
+}
+
+const store = new Store<StoreSchema>({
+  name: 'jubitmind-settings',
+  defaults: {
+    windowBounds: { width: 1400, height: 900, isMaximized: false },
+    firstRunComplete: false,
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
 
 /** Find a free port starting from the given port. */
 async function findFreePort(start: number): Promise<number> {
@@ -63,10 +85,165 @@ function startServer(port: number): ChildProcess {
   return proc;
 }
 
+// ---------------------------------------------------------------------------
+// Window state persistence
+// ---------------------------------------------------------------------------
+
+function isVisibleOnAnyDisplay(bounds: { x?: number; y?: number; width: number; height: number }): boolean {
+  if (bounds.x === undefined || bounds.y === undefined) return false;
+  const displays = screen.getAllDisplays();
+  return displays.some((display) => {
+    const { x, y, width, height } = display.workArea;
+    return (
+      bounds.x! >= x - 100 &&
+      bounds.y! >= y - 100 &&
+      bounds.x! < x + width - 50 &&
+      bounds.y! < y + height - 50
+    );
+  });
+}
+
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function saveWindowState() {
+  if (!mainWindow) return;
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    if (!mainWindow) return;
+    const isMaximized = mainWindow.isMaximized();
+    if (!isMaximized) {
+      const bounds = mainWindow.getBounds();
+      store.set('windowBounds', { ...bounds, isMaximized: false });
+    } else {
+      store.set('windowBounds.isMaximized', true);
+    }
+  }, 500);
+}
+
+// ---------------------------------------------------------------------------
+// App menu
+// ---------------------------------------------------------------------------
+
+function buildAppMenu() {
+  const isMac = process.platform === 'darwin';
+
+  const template: Electron.MenuItemConstructorOptions[] = [
+    // macOS app menu
+    ...(isMac
+      ? [{
+          label: app.name,
+          submenu: [
+            { role: 'about' as const },
+            { type: 'separator' as const },
+            { role: 'hide' as const },
+            { role: 'hideOthers' as const },
+            { role: 'unhide' as const },
+            { type: 'separator' as const },
+            { role: 'quit' as const },
+          ],
+        }]
+      : []),
+
+    // File menu
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Generate Report',
+          accelerator: 'CmdOrCtrl+E',
+          click: () => {
+            mainWindow?.webContents.send('menu-export-report');
+          },
+        },
+        { type: 'separator' },
+        isMac ? { role: 'close' } : { role: 'quit' },
+      ],
+    },
+
+    // Edit menu
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' },
+      ],
+    },
+
+    // View menu
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+
+    // Window menu
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        ...(isMac
+          ? [{ type: 'separator' as const }, { role: 'front' as const }]
+          : [{ role: 'close' as const }]),
+      ],
+    },
+
+    // Help menu
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'JubitMind Documentation',
+          click: () => shell.openExternal('https://github.com/M1zwell/jubitmind'),
+        },
+        {
+          label: 'Report Issue',
+          click: () => shell.openExternal('https://github.com/M1zwell/jubitmind/issues'),
+        },
+      ],
+    },
+  ];
+
+  return Menu.buildFromTemplate(template);
+}
+
+// ---------------------------------------------------------------------------
+// IPC handlers
+// ---------------------------------------------------------------------------
+
+ipcMain.handle('is-first-run', () => !store.get('firstRunComplete', false));
+ipcMain.handle('complete-setup', () => {
+  store.set('firstRunComplete', true);
+  return true;
+});
+
+// ---------------------------------------------------------------------------
+// Window creation
+// ---------------------------------------------------------------------------
+
 function createWindow() {
+  const saved = store.get('windowBounds');
+  const bounds = isVisibleOnAnyDisplay(saved) ? saved : { width: 1400, height: 900 };
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
     minWidth: 800,
     minHeight: 600,
     title: 'JubitMind',
@@ -78,9 +255,19 @@ function createWindow() {
       nodeIntegration: false,
     },
     backgroundColor: '#0d1117',
+    show: false, // Don't show until splash is loaded
   });
 
-  mainWindow.loadURL(`http://127.0.0.1:${serverPort}`);
+  // Load splash screen immediately
+  mainWindow.loadFile(path.join(__dirname, 'splash.html'));
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
+    if (saved.isMaximized) mainWindow?.maximize();
+  });
+
+  // Save window state on resize/move
+  mainWindow.on('resize', saveWindowState);
+  mainWindow.on('move', saveWindowState);
 
   // Open external links in the default browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -96,25 +283,45 @@ function createWindow() {
   });
 }
 
+// ---------------------------------------------------------------------------
+// App lifecycle
+// ---------------------------------------------------------------------------
+
 app.whenReady().then(async () => {
+  // Set up app menu
+  Menu.setApplicationMenu(buildAppMenu());
+
+  // Find port and create window with splash screen
   serverPort = await findFreePort(3000);
   console.log(`[JubitMind] Starting server on port ${serverPort}...`);
+  createWindow();
 
+  // Start server
   serverProcess = startServer(serverPort);
 
+  // Wait for server to be ready
   const ready = await waitForServer(serverPort);
   if (!ready) {
     console.error('[JubitMind] Server failed to start within timeout');
-    app.quit();
+    // Show error on splash screen
+    mainWindow?.webContents.executeJavaScript(`
+      document.getElementById('status').style.display = 'none';
+      document.querySelector('.progress-container').style.display = 'none';
+      const err = document.getElementById('error');
+      err.style.display = 'block';
+      err.textContent = 'Failed to start server. Please check your installation and try again.';
+    `).catch(() => {});
     return;
   }
 
-  console.log('[JubitMind] Server ready, opening window...');
-  createWindow();
+  console.log('[JubitMind] Server ready, loading app...');
+  mainWindow?.loadURL(`http://127.0.0.1:${serverPort}`);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
+      // If server is already running, load app directly
+      mainWindow?.loadURL(`http://127.0.0.1:${serverPort}`);
     }
   });
 });

@@ -424,3 +424,105 @@ export interface AuditReport {
   };
   recommendations: string[];
 }
+
+// --- Combined Reports ---
+
+export interface CombinedReport {
+  id: string;
+  timestamp: string;
+  duration_ms: number;
+  executiveSummary: {
+    totalSessions: number;
+    criticalFindings: number;
+    highFindings: number;
+    estimatedCostUsd: number;
+    topThemes: string[];
+    overallHealthStatus: 'healthy' | 'warning' | 'critical';
+  };
+  securityFindings: AuditReport['security'];
+  performanceMetrics: AuditReport['performance'];
+  usageInsights: {
+    promptPatterns: InsightReport['promptPatterns'];
+    toolUsageTrends: InsightReport['toolUsageTrends'];
+    modelComparison: InsightReport['modelComparison'];
+  };
+  billingAnalysis: AuditReport['billing'];
+  recommendations: string[];
+  sourceReports: {
+    insightId: string;
+    auditId: string;
+  };
+}
+
+// --- Extractions (LangExtract) ---
+
+export interface ExtractionEntity {
+  type: string;
+  value: string;
+  confidence: number;
+  sourceStart: number;
+  sourceEnd: number;
+  sourceText: string;
+  alignment?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ExtractionResult {
+  id: string;
+  sessionId: string;
+  schemaName: string;
+  timestamp: string;
+  duration_ms: number;
+  entities: ExtractionEntity[];
+  modelUsed: string;
+  provider: string;
+  totalEntities: number;
+  textLength?: number;
+}
+
+export interface ExtractionSchema {
+  name: string;
+  description: string;
+  entityTypes: string[];
+  examples: number;
+}
+
+export interface SidecarStatus {
+  available: boolean;
+  version?: string;
+  activeProvider?: string;
+  activeModel?: string;
+  hasApiKey?: boolean;
+  apiBase?: string;
+  providers: {
+    ollama: { available: boolean; url: string };
+    gemini: { available: boolean; hasKey: boolean };
+    openai: { available: boolean; hasKey: boolean };
+    'openai-compatible'?: { available: boolean; url: string };
+  };
+}
+
+export interface ProviderPreset {
+  id: string;
+  name: string;
+  defaultModel: string;
+  needsKey: boolean;
+  keyEnvVars: string[];
+  hasKey: boolean;
+  isActive: boolean;
+  defaultApiBase?: string;
+}
+
+export interface SidecarConfig {
+  provider: string;
+  model_id: string;
+  api_key: string;
+  api_base: string;
+  ollama_url: string;
+  hasApiKey?: boolean;
+  max_char_buffer?: number;
+  extraction_passes?: number;
+  max_workers?: number;
+  temperature?: number;
+  batch_length?: number;
+}

@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   Layers,
   Lightbulb,
+  Scan,
+  FileBarChart,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -41,6 +43,8 @@ const NAV_SECTIONS = [
       { to: '/explorer', icon: Layers, label: 'Explorer' },
       { to: '/auditor', icon: ShieldAlert, label: 'Auditor' },
       { to: '/insights', icon: Lightbulb, label: 'Insights' },
+      { to: '/extractions', icon: Scan, label: 'Extractions' },
+      { to: '/reports', icon: FileBarChart, label: 'Reports' },
       { to: '/health', icon: Activity, label: 'Health' },
     ],
   },

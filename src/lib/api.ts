@@ -269,6 +269,30 @@ export const api = {
       request<import('./types').ExplorerFacets>('/explorer/facets'),
   },
 
+  // Extractions (LangExtract sidecar)
+  extractions: {
+    status: () => request<import('./types').SidecarStatus>('/extractions/status'),
+    schemas: () => request<{ schemas: import('./types').ExtractionSchema[] }>('/extractions/schemas'),
+    providers: () => request<{ providers: import('./types').ProviderPreset[] }>('/extractions/providers'),
+    config: () => request<import('./types').SidecarConfig>('/extractions/config'),
+    updateConfig: (body: Partial<import('./types').SidecarConfig>) =>
+      request<{ ok: boolean }>('/extractions/config', { method: 'POST', body: JSON.stringify(body) }),
+    run: (body: { sessionId: string; schemaName: string; projectSlug?: string; modelId?: string; extractionPasses?: number }) =>
+      request<{ result: import('./types').ExtractionResult }>('/extractions/run', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    results: (sessionId: string) =>
+      request<{ results: import('./types').ExtractionResult[] }>(`/extractions/results/${sessionId}`),
+    allResults: (params?: { limit?: number; offset?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.limit) query.set('limit', String(params.limit));
+      if (params?.offset) query.set('offset', String(params.offset));
+      return request<{ results: import('./types').ExtractionResult[]; total: number }>(`/extractions/results?${query}`);
+    },
+    visualizeUrl: (resultId: string) => `/api/extractions/visualize/${resultId}`,
+  },
+
   // Insights (cross-session AI-powered analysis)
   insights: {
     status: () => request<{ running: boolean; lastInsight: string | null }>('/insights/status'),
@@ -278,6 +302,17 @@ export const api = {
       return request<{ reports: import('./types').InsightReport[]; count: number }>(`/insights/reports${query}`);
     },
     run: () => request<{ report: import('./types').InsightReport }>('/insights/run', { method: 'POST' }),
+  },
+
+  // Combined Reports
+  reports: {
+    generate: () => request<{ report: import('./types').CombinedReport }>('/reports/generate', { method: 'POST' }),
+    latest: () => request<{ report: import('./types').CombinedReport | null }>('/reports/latest'),
+    history: (limit?: number) => {
+      const query = limit ? `?limit=${limit}` : '';
+      return request<{ reports: import('./types').CombinedReport[]; count: number }>(`/reports/history${query}`);
+    },
+    exportUrl: (format: 'pdf' | 'md') => `/api/reports/export?format=${format}`,
   },
 
   // Archives (unified Supabase + local)
