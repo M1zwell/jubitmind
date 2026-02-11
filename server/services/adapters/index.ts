@@ -10,6 +10,9 @@ import { kiloCodeAdapter } from './kilo-code.js';
 import { kimiCliAdapter } from './kimi-cli.js';
 import { antigravityAdapter } from './antigravity.js';
 import { claudeVscodeAdapter } from './claude-vscode.js';
+import { difyAdapter } from './dify.js';
+import { cozeAdapter } from './coze.js';
+import { minimaxAdapter } from './minimax.js';
 
 export function initAdapters(): void {
   // CLI tools
@@ -28,6 +31,11 @@ export function initAdapters(): void {
   registry.register(continueDevAdapter);
   registry.register(kiloCodeAdapter);
   registry.register(claudeVscodeAdapter);
+
+  // AI Platforms (non-coding)
+  registry.register(difyAdapter);
+  registry.register(cozeAdapter);
+  registry.register(minimaxAdapter);
 }
 
 export { registry } from './registry.js';
