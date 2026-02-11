@@ -172,7 +172,7 @@ export const minimaxAdapter: AIToolAdapter = {
                 updatedAt: stat.mtime.toISOString(),
                 messageCount: 0,
                 preview: `MiniMax data found at ${dataFile}`,
-                riskLevel: 'unknown',
+                riskLevel: undefined,
               });
             }
           } catch {
@@ -242,7 +242,7 @@ export const minimaxAdapter: AIToolAdapter = {
         updatedAt: new Date().toISOString(),
         messageCount: 0,
         preview: `MiniMax/Hailuo data found at ${minimaxPath} (export conversations to access)`,
-        riskLevel: 'unknown',
+        riskLevel: undefined,
       });
     }
 
@@ -254,7 +254,7 @@ export const minimaxAdapter: AIToolAdapter = {
 
     if (sessionId === 'minimax-installation' || sessionId === 'minimax-local-storage') {
       return [{
-        id: 'info',
+        uuid: 'info',
         role: 'system',
         content: `MiniMax/Hailuo is primarily a web/app-based service. To access your conversation history:
 
@@ -280,7 +280,7 @@ Note: Browser-based conversation data is encrypted and not directly accessible. 
           if (data.messages) {
             for (const msg of data.messages) {
               messages.push({
-                id: `${sessionId}-${messages.length}`,
+                uuid: `${sessionId}-${messages.length}`,
                 role: msg.sender_type === 'USER' || msg.sender_type === 'user' ? 'user' : 'assistant',
                 content: msg.text,
                 timestamp: msg.created_at,
@@ -291,7 +291,7 @@ Note: Browser-based conversation data is encrypted and not directly accessible. 
           // Plain text export
           const content = readFileSync(exportFile, 'utf8');
           messages.push({
-            id: `${sessionId}-content`,
+            uuid: `${sessionId}-content`,
             role: 'system',
             content: content,
             timestamp: new Date().toISOString(),
@@ -299,7 +299,7 @@ Note: Browser-based conversation data is encrypted and not directly accessible. 
         }
       } catch (error) {
         messages.push({
-          id: 'error',
+          uuid: 'error',
           role: 'system',
           content: `Failed to read export: ${error instanceof Error ? error.message : 'Unknown error'}`,
           timestamp: new Date().toISOString(),

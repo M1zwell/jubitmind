@@ -92,7 +92,7 @@ function getDifyPaths(): { difyPath: string | null; dbPath: string | null } {
       cachedDbPath = null;
     }
   }
-  return { difyPath: cachedDifyPath, dbPath: cachedDbPath };
+  return { difyPath: cachedDifyPath ?? null, dbPath: cachedDbPath ?? null };
 }
 
 export const difyAdapter: AIToolAdapter = {
@@ -213,7 +213,7 @@ export const difyAdapter: AIToolAdapter = {
 
     if (sessionId === 'dify-installation') {
       return [{
-        id: 'info',
+        uuid: 'info',
         role: 'system',
         content: 'Dify installation detected but database is not accessible. This may be because Dify is running in Docker with internal volumes.',
         timestamp: new Date().toISOString(),
@@ -237,7 +237,7 @@ export const difyAdapter: AIToolAdapter = {
             // User query
             if (msg.query) {
               messages.push({
-                id: `${msg.id}-user`,
+                uuid: `${msg.id}-user`,
                 role: 'user',
                 content: msg.query,
                 timestamp: msg.created_at,
@@ -246,7 +246,7 @@ export const difyAdapter: AIToolAdapter = {
             // Assistant answer
             if (msg.answer) {
               messages.push({
-                id: `${msg.id}-assistant`,
+                uuid: `${msg.id}-assistant`,
                 role: 'assistant',
                 content: msg.answer,
                 timestamp: msg.created_at,

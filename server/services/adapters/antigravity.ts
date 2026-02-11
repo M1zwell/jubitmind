@@ -204,7 +204,7 @@ export const antigravityAdapter: AIToolAdapter = {
             messageCount: artifactCount, // Count of readable artifacts
             preview,
             sizeBytes: stat.size,
-            riskLevel: hasReadableContent ? 'low' : 'unknown',
+            riskLevel: hasReadableContent ? 'low' : undefined,
           });
         } catch {
           // Skip files we can't stat
@@ -230,7 +230,7 @@ export const antigravityAdapter: AIToolAdapter = {
       if (!artifact.isImage) {
         // Add document artifacts as assistant messages (they're AI-generated)
         messages.push({
-          id: `${sessionId}-${artifact.name}`,
+          uuid: `${sessionId}-${artifact.name}`,
           role: 'assistant',
           content: `## ${artifact.type}: ${artifact.name}\n\n${artifact.content}`,
           timestamp: artifact.updatedAt,
@@ -238,7 +238,7 @@ export const antigravityAdapter: AIToolAdapter = {
       } else {
         // Add image references
         messages.push({
-          id: `${sessionId}-${artifact.name}`,
+          uuid: `${sessionId}-${artifact.name}`,
           role: 'assistant',
           content: `📷 **${artifact.type}**: ${artifact.name}\n\n${artifact.content}`,
           timestamp: artifact.updatedAt,
@@ -253,7 +253,7 @@ export const antigravityAdapter: AIToolAdapter = {
       const sizeDisplay = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
 
       messages.push({
-        id: `${sessionId}-encrypted-conversation`,
+        uuid: `${sessionId}-encrypted-conversation`,
         role: 'system',
         content: `---\n\n**Note:** The full conversation transcript (${sizeDisplay}) is encrypted and cannot be read locally.\n\nAntigravity encrypts .pb files with per-session keys tied to your Google account. The artifacts above were extracted from the unencrypted brain/ directory.`,
         timestamp: stat.mtime.toISOString(),
@@ -261,7 +261,7 @@ export const antigravityAdapter: AIToolAdapter = {
     }
 
     // Sort by timestamp (oldest first for reading order)
-    messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    messages.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
 
     return messages;
   },

@@ -169,7 +169,7 @@ export const cozeAdapter: AIToolAdapter = {
                 updatedAt: stat.mtime.toISOString(),
                 messageCount: 0,
                 preview: `Coze data found at ${dataFile}`,
-                riskLevel: 'unknown',
+                riskLevel: undefined,
               });
             }
           } catch {
@@ -240,7 +240,7 @@ export const cozeAdapter: AIToolAdapter = {
         updatedAt: new Date().toISOString(),
         messageCount: 0,
         preview: `Coze data found at ${cozePath} (browser-based - export conversations to access)`,
-        riskLevel: 'unknown',
+        riskLevel: undefined,
       });
     }
 
@@ -252,7 +252,7 @@ export const cozeAdapter: AIToolAdapter = {
 
     if (sessionId === 'coze-installation' || sessionId === 'coze-local-storage') {
       return [{
-        id: 'info',
+        uuid: 'info',
         role: 'system',
         content: `Coze is primarily a browser-based service. To access your conversation history:
 
@@ -278,7 +278,7 @@ Note: Coze doesn't store conversations locally like desktop apps. Browser data i
           if (data.messages) {
             for (const msg of data.messages) {
               messages.push({
-                id: `${sessionId}-${messages.length}`,
+                uuid: `${sessionId}-${messages.length}`,
                 role: msg.role === 'user' ? 'user' : 'assistant',
                 content: msg.content,
                 timestamp: msg.timestamp,
@@ -289,7 +289,7 @@ Note: Coze doesn't store conversations locally like desktop apps. Browser data i
           // Plain text export
           const content = readFileSync(exportFile, 'utf8');
           messages.push({
-            id: `${sessionId}-content`,
+            uuid: `${sessionId}-content`,
             role: 'system',
             content: content,
             timestamp: new Date().toISOString(),
@@ -297,7 +297,7 @@ Note: Coze doesn't store conversations locally like desktop apps. Browser data i
         }
       } catch (error) {
         messages.push({
-          id: 'error',
+          uuid: 'error',
           role: 'system',
           content: `Failed to read export: ${error instanceof Error ? error.message : 'Unknown error'}`,
           timestamp: new Date().toISOString(),
