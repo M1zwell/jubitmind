@@ -1,12 +1,23 @@
 import { existsSync } from 'fs';
-import { homedir } from 'os';
+import { homedir, platform } from 'os';
 import { join } from 'path';
 import type { AIToolAdapter, AdapterSessionMeta, AdapterMessage, AdapterStats } from './types.js';
 
-const DATA_PATHS = [
-  join(homedir(), '.antigravity'),
-  join(homedir(), '.config', 'antigravity'),
-];
+const IS_WINDOWS = platform() === 'win32';
+const HOME = homedir();
+
+const DATA_PATHS = IS_WINDOWS
+  ? [
+      // Windows paths
+      join(HOME, 'AppData', 'Roaming', 'antigravity'),
+      join(HOME, 'AppData', 'Local', 'antigravity'),
+      join(HOME, '.antigravity'),
+    ]
+  : [
+      // macOS/Linux paths
+      join(HOME, '.antigravity'),
+      join(HOME, '.config', 'antigravity'),
+    ];
 
 export const antigravityAdapter: AIToolAdapter = {
   id: 'antigravity',

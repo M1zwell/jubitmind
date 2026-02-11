@@ -1,12 +1,24 @@
 import { existsSync } from 'fs';
-import { homedir } from 'os';
+import { homedir, platform } from 'os';
 import { join } from 'path';
 import type { AIToolAdapter, AdapterSessionMeta, AdapterMessage, AdapterStats } from './types.js';
 
-const DATA_PATHS = [
-  join(homedir(), 'Library', 'Application Support', 'Cursor', 'User', 'globalStorage', 'state.vscdb'),
-  join(homedir(), '.cursor', 'ai-tracking', 'ai-code-tracking.db'),
-];
+const IS_WINDOWS = platform() === 'win32';
+const HOME = homedir();
+
+const DATA_PATHS = IS_WINDOWS
+  ? [
+      // Windows paths
+      join(HOME, 'AppData', 'Roaming', 'Cursor', 'User', 'globalStorage', 'state.vscdb'),
+      join(HOME, 'AppData', 'Local', 'Cursor', 'User', 'globalStorage', 'state.vscdb'),
+      join(HOME, '.cursor', 'ai-tracking', 'ai-code-tracking.db'),
+    ]
+  : [
+      // macOS/Linux paths
+      join(HOME, 'Library', 'Application Support', 'Cursor', 'User', 'globalStorage', 'state.vscdb'),
+      join(HOME, '.config', 'Cursor', 'User', 'globalStorage', 'state.vscdb'),
+      join(HOME, '.cursor', 'ai-tracking', 'ai-code-tracking.db'),
+    ];
 
 export const cursorAdapter: AIToolAdapter = {
   id: 'cursor',
