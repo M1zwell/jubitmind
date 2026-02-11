@@ -12,9 +12,9 @@ import { ReportPreviewDialog } from '../reports/ReportPreviewDialog';
 import type { CombinedReport } from '@/lib/types';
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
-const RELEASE_URL = 'https://github.com/M1zwell/jubitmind/releases/latest';
-const DMG_URL = 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.78.0-arm64.dmg';
-const EXE_URL = 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.78.0.exe';
+const RELEASE_URL = 'https://github.com/M1zwell/jubitmind/releases/tag/v0.78.0';
+const DMG_URL = 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-0.78.0-arm64.dmg';
+const EXE_URL = 'https://github.com/M1zwell/jubitmind/releases/download/v0.78.0/JubitMind-Setup-0.78.0.exe';
 
 export function HomePage() {
   const { data: adapters, isLoading: adaptersLoading, refetch: refetchAdapters } = useAdapterList();
