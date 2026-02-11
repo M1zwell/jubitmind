@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, LayoutDashboard, FileBarChart } from 'lucide-react';
+import { RefreshCw, LayoutDashboard, FileBarChart, Download, Apple, Monitor } from 'lucide-react';
 import { useAdapterList, useUnifiedStats } from '@/hooks/useUnifiedStats';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -10,6 +10,11 @@ import { ToolStatusGrid } from './ToolStatusGrid';
 import { RecentSessions } from './RecentSessions';
 import { ReportPreviewDialog } from '../reports/ReportPreviewDialog';
 import type { CombinedReport } from '@/lib/types';
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
+const RELEASE_URL = 'https://github.com/M1zwell/jubitmind/releases/latest';
+const DMG_URL = 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.78.0-arm64.dmg';
+const EXE_URL = 'https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.78.0.exe';
 
 export function HomePage() {
   const { data: adapters, isLoading: adaptersLoading, refetch: refetchAdapters } = useAdapterList();
@@ -83,6 +88,51 @@ export function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* Download Banner (demo mode only) */}
+      {IS_DEMO && (
+        <div className="mb-4 rounded-lg border border-teal-500/30 bg-gradient-to-r from-teal-500/10 to-cyan-500/10 p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-teal-300 flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download JubitMind v0.78.0
+              </h2>
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                Free desktop app — monitor your AI coding sessions locally.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href={DMG_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]/80 border border-[var(--color-border)] transition-colors"
+              >
+                <Apple className="w-3.5 h-3.5" />
+                macOS (ARM)
+              </a>
+              <a
+                href={EXE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]/80 border border-[var(--color-border)] transition-colors"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                Windows (x64)
+              </a>
+              <a
+                href={RELEASE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-teal-400 hover:text-teal-300 transition-colors underline"
+              >
+                All releases
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">

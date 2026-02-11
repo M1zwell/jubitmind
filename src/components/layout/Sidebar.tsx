@@ -106,13 +106,13 @@ export function Sidebar() {
         <div className="px-3 py-2 bg-teal-500/15 border-b border-teal-500/30">
           <p className="text-[11px] font-medium text-teal-400">Demo Mode — Sample Data</p>
           <a
-            href="https://chathogs.com"
+            href="https://github.com/M1zwell/jubitmind/releases/latest"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-[10px] text-teal-300 hover:text-teal-200 transition-colors mt-0.5"
           >
             <Download className="w-2.5 h-2.5" />
-            Download JubitMind
+            Download JubitMind v0.78.0
           </a>
         </div>
       )}
