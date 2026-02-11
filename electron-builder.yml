@@ -29,10 +29,12 @@ mac:
   category: public.app-category.developer-tools
   target:
     - target: dmg
-      arch: [universal]
+      arch: [arm64]
     - target: zip
-      arch: [universal]
+      arch: [arm64]
   darkModeSupport: true
+  # x64ArchFiles for universal builds (when sidecar binaries are present):
+  # x64ArchFiles: "Contents/Resources/sidecar/**/*"
 
 win:
   target:
