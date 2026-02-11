@@ -8,6 +8,7 @@ import Store from 'electron-store';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: ChildProcess | null = null;
+let sidecarProcess: ChildProcess | null = null;
 let serverPort = 3000;
 
 // ---------------------------------------------------------------------------
@@ -56,6 +57,46 @@ async function waitForServer(port: number, timeout = 15000): Promise<boolean> {
     await new Promise((r) => setTimeout(r, 300));
   }
   return false;
+}
+
+/** Start the LangExtract sidecar (Python FastAPI) if available. */
+function startSidecar(): ChildProcess | null {
+  const sidecarDir = path.join(__dirname, '..', 'sidecar');
+  const venvPython = process.platform === 'win32'
+    ? path.join(sidecarDir, '.venv', 'Scripts', 'python.exe')
+    : path.join(sidecarDir, '.venv', 'bin', 'python3');
+  const mainPy = path.join(sidecarDir, 'main.py');
+
+  // Check if sidecar is installed
+  const fs = require('fs');
+  if (!fs.existsSync(venvPython) || !fs.existsSync(mainPy)) {
+    console.log('[sidecar] Not installed — skipping (run install.sh to set up)');
+    return null;
+  }
+
+  console.log('[sidecar] Starting LangExtract sidecar...');
+  const proc = spawn(venvPython, [mainPy], {
+    cwd: sidecarDir,
+    env: { ...process.env, SIDECAR_PORT: '3100' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  proc.stdout?.on('data', (data) => {
+    console.log(`[sidecar] ${data.toString().trim()}`);
+  });
+
+  proc.stderr?.on('data', (data) => {
+    // Uvicorn logs to stderr
+    const msg = data.toString().trim();
+    if (msg) console.log(`[sidecar] ${msg}`);
+  });
+
+  proc.on('exit', (code) => {
+    console.log(`[sidecar] exited with code ${code}`);
+    sidecarProcess = null;
+  });
+
+  return proc;
 }
 
 /** Start the Express server as a child process. */
@@ -296,6 +337,9 @@ app.whenReady().then(async () => {
   console.log(`[JubitMind] Starting server on port ${serverPort}...`);
   createWindow();
 
+  // Start sidecar (non-blocking, optional)
+  sidecarProcess = startSidecar();
+
   // Start server
   serverProcess = startServer(serverPort);
 
@@ -333,6 +377,9 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  if (sidecarProcess && !sidecarProcess.killed) {
+    sidecarProcess.kill('SIGTERM');
+  }
   if (serverProcess && !serverProcess.killed) {
     serverProcess.kill('SIGTERM');
   }

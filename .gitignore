@@ -16,3 +16,10 @@ __pycache__/
 *.pyc
 sidecar/config.json
 sidecar/data/
+sidecar/.venv/
+
+# Generated launcher scripts
+start.sh
+start-dev.sh
+start.bat
+start-dev.bat

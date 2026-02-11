@@ -13,6 +13,9 @@ files:
   - package.json
   - providers.json
   - node_modules/**/*
+  - sidecar/main.py
+  - sidecar/schemas.py
+  - sidecar/requirements.txt
 
 mac:
   category: public.app-category.developer-tools
