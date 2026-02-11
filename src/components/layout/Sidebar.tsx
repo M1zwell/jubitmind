@@ -98,7 +98,7 @@ const NAV_SECTIONS = [
 ];
 
 export function Sidebar() {
-  const { user, loading, signIn } = useAuth();
+  const { user, loading, signIn, enabled } = useAuth();
 
   return (
     <aside className="w-64 flex-shrink-0 bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] flex flex-col h-full overflow-y-auto">
@@ -156,7 +156,7 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 py-3 border-t border-[var(--color-border)] space-y-2">
-        {!loading && user ? (
+        {enabled && !loading && user ? (
           <div className="flex items-center gap-2">
             {user.user_metadata?.avatar_url ? (
               <img src={user.user_metadata.avatar_url} alt="" className="w-5 h-5 rounded-full flex-shrink-0" />
@@ -171,7 +171,7 @@ export function Sidebar() {
               </p>
             </div>
           </div>
-        ) : !loading ? (
+        ) : enabled && !loading ? (
           <button
             onClick={() => signIn('google')}
             className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-bg-tertiary)] hover:text-teal-400 transition-colors"

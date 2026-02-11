@@ -10,7 +10,7 @@ export function AuthCallback() {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
 
-      if (code) {
+      if (code && supabase) {
         // PKCE flow: exchange code for session
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {

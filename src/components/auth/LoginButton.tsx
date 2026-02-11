@@ -9,7 +9,7 @@ const PROVIDERS: { id: Provider; label: string; color: string }[] = [
 ];
 
 export function LoginButton() {
-  const { user, loading, signIn, signOut } = useAuth();
+  const { user, loading, signIn, signOut, enabled } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -21,7 +21,8 @@ export function LoginButton() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  if (loading) return null;
+  // Don't show login button when Supabase is not configured
+  if (!enabled || loading) return null;
 
   if (user) {
     return (

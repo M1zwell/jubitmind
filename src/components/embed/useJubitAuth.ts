@@ -43,6 +43,10 @@ export function useJubitAuth({
 
   const createSSOToken = useCallback(async (): Promise<string | null> => {
     try {
+      if (!supabase) {
+        log('Supabase not configured');
+        return null;
+      }
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         log('No session available for SSO token creation');
@@ -105,7 +109,7 @@ export function useJubitAuth({
 
   // Auto-authenticate when iframe is ready
   useEffect(() => {
-    if (!autoAuth || !isReady) return;
+    if (!autoAuth || !isReady || !supabase) return;
 
     const attemptAutoAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -120,6 +124,8 @@ export function useJubitAuth({
 
   // Listen for auth state changes (sign-in, token refresh, sign-out)
   useEffect(() => {
+    if (!supabase) return;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         log('Auth state changed:', event);

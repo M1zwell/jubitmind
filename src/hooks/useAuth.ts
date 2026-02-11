@@ -6,30 +6,35 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  enabled: boolean;
 }
 
 export function useAuth() {
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
-    loading: true,
+    loading: !supabase ? false : true,
+    enabled: !!supabase,
   });
 
   useEffect(() => {
+    if (!supabase) return;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthToken(session?.access_token ?? null);
-      setState({ user: session?.user ?? null, session, loading: false });
+      setState({ user: session?.user ?? null, session, loading: false, enabled: true });
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthToken(session?.access_token ?? null);
-      setState({ user: session?.user ?? null, session, loading: false });
+      setState({ user: session?.user ?? null, session, loading: false, enabled: true });
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signIn = useCallback(async (provider: Provider) => {
+    if (!supabase) return;
     // Store current path so we can return after OAuth
     sessionStorage.setItem('auth_return_path', window.location.pathname);
     const { error } = await supabase.auth.signInWithOAuth({
@@ -40,6 +45,7 @@ export function useAuth() {
   }, []);
 
   const signOut = useCallback(async () => {
+    if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
