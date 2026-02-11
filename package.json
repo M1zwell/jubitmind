@@ -1,6 +1,6 @@
 {
   "name": "jubitmind",
-  "version": "0.77.0",
+  "version": "0.78.0",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
@@ -25,7 +25,7 @@
     "docker:build": "docker build -t jubitmind .",
     "docker:run": "docker run -p 3000:3000 -v ~/.claude:/data/.claude:ro jubitmind",
     "docker:compose": "docker compose up -d",
-    "electron:build-ts": "tsc -p tsconfig.electron.json",
+    "electron:build-ts": "tsc -p tsconfig.electron.json && tsc -p tsconfig.preload.json",
     "electron:dev": "npm run build && npm run electron:build-ts && electron .",
     "electron:build": "npm run build && npm run electron:build-ts && electron-builder --config electron-builder.yml",
     "electron:build:mac": "npm run build && npm run electron:build-ts && electron-builder --mac --config electron-builder.yml",

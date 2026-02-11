@@ -2,6 +2,8 @@ appId: ai.jubit.jubitmind
 productName: JubitMind
 copyright: Copyright © 2026 Jubit.ai
 
+asar: false
+
 directories:
   buildResources: build
   output: dist-electron
@@ -26,6 +28,9 @@ extraResources:
       - "**/*"
 
 mac:
+  # To bypass "broken" warning on unsigned builds: right-click > Open, or run:
+  # xattr -cr /Applications/JubitMind.app
+  identity: null
   category: public.app-category.developer-tools
   target:
     - target: dmg

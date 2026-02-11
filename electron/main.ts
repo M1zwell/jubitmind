@@ -157,6 +157,7 @@ function startServer(port: number): ChildProcess {
       ...process.env,
       NODE_ENV: 'production',
       PORT: String(port),
+      JUBITMIND_PROJECT_ROOT: app.getPath('home'),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

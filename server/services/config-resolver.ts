@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 
-const PROJECT_ROOT = path.resolve('/Users/jubit_nb0/JubitLLMNPMPlayground');
+const PROJECT_ROOT = process.env.JUBITMIND_PROJECT_ROOT || os.homedir();
 const HOME = os.homedir();
 const IS_DEMO = process.env.DEMO_MODE === 'true';
 
