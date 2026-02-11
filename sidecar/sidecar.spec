@@ -88,6 +88,22 @@ hidden_imports = [
     # Multipart (FastAPI file upload support)
     'multipart',
     'python_multipart',
+    # Pandas (used by langextract.io)
+    'pandas',
+    'pandas.io',
+    'pandas.io.formats',
+    'pandas.io.formats.format',
+    # Numpy (pandas dependency)
+    'numpy',
+    'numpy._core',
+    'numpy._core._methods',
+    # Google AI (langextract providers)
+    'google',
+    'google.genai',
+    'google.auth',
+    'google.api_core',
+    'proto',
+    'grpc',
 ]
 
 # uvloop only on macOS/Linux (not available on Windows)
@@ -111,8 +127,6 @@ a = Analysis(
     excludes=[
         'tkinter',
         'matplotlib',
-        'numpy',
-        'pandas',
         'scipy',
         'PIL',
         'cv2',
