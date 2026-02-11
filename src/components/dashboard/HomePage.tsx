@@ -2,6 +2,7 @@ import { RefreshCw, LayoutDashboard } from 'lucide-react';
 import { useAdapterList, useUnifiedStats } from '@/hooks/useUnifiedStats';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useConversationStats } from '@/hooks/useConversations';
 import { StatsCards } from './StatsCards';
 import { ToolStatusGrid } from './ToolStatusGrid';
 import { RecentSessions } from './RecentSessions';
@@ -9,6 +10,7 @@ import { RecentSessions } from './RecentSessions';
 export function HomePage() {
   const { data: adapters, isLoading: adaptersLoading, refetch: refetchAdapters } = useAdapterList();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats, isFetching } = useUnifiedStats();
+  const { data: convStats } = useConversationStats();
 
   const { data: recentData } = useQuery({
     queryKey: ['adapter-sessions', 'claude-code', { limit: 8 }],
@@ -55,7 +57,7 @@ export function HomePage() {
           {/* Summary Stats */}
           <StatsCards
             totalSessions={stats?.totals.totalSessions || 0}
-            totalMessages={stats?.totals.totalMessages || 0}
+            totalMessages={stats?.totals.totalMessages || (convStats?.stats as Record<string, unknown>)?.totalMessages as number || 0}
             totalTokens={stats?.totals.totalTokens || 0}
             totalCostUsd={stats?.totals.totalCostUsd || 0}
             availableTools={availableCount}

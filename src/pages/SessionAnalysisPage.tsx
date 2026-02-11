@@ -80,11 +80,10 @@ export function SessionAnalysisPage() {
 
   // Hooks
   const { data: projectsData } = useProjects();
-  const { data: sessionsData } = useConversationSessions({
-    source: 'claude-code',
-    project: selectedProject || undefined,
-    limit: 100,
-  });
+  const { data: sessionsData } = useConversationSessions(
+    'claude-code',
+    selectedProject || undefined,
+  );
   const sse = useSSE();
 
   // Load providers on mount
