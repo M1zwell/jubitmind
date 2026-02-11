@@ -42,7 +42,7 @@ else:
 sys.path.insert(0, str(_BUNDLE_DIR))
 from schemas import get_schema, list_schemas
 
-app = FastAPI(title="JubitMind LangExtract Sidecar", version="1.2.0")
+app = FastAPI(title="JubitMind LangExtract Sidecar", version="0.77.0")
 
 app.add_middleware(
     CORSMiddleware,

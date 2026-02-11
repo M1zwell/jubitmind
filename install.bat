@@ -4,7 +4,7 @@ REM Usage: git clone https://github.com/M1zwell/jubitmind.git && cd jubitmind &&
 
 echo.
 echo ╔═══════════════════════════════════╗
-echo ║  JubitMind Installer v1.2.0       ║
+echo ║  JubitMind Installer v0.77       ║
 echo ║  AI Interaction Audit Platform    ║
 echo ╚═══════════════════════════════════╝
 echo.

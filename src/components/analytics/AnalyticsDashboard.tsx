@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BarChart3, RefreshCw, Cloud, HardDrive, Archive, Cpu, Shield, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { LoginButton } from '@/components/auth/LoginButton';
+import { SignInBanner } from '@/components/auth/SignInBanner';
 import { ModelUsageChart } from './charts/ModelUsageChart';
 import { TypeDistributionChart } from './charts/TypeDistributionChart';
 import { ActivityTimelineChart } from './charts/ActivityTimelineChart';
@@ -65,22 +65,13 @@ export function AnalyticsDashboard() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
-          <LoginButton />
         </div>
       </div>
 
-      {/* Sign-in prompt for cloud data */}
-      {!user && (
-        <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3 mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-yellow-400">Sign in to unlock full analytics</p>
-            <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
-              Cloud archives include model usage, type distribution, activity timeline, arena leaderboard, and cost tracking
-            </p>
-          </div>
-          <LoginButton />
-        </div>
-      )}
+      <SignInBanner
+        feature="cloud analytics"
+        detail="Model usage, activity timeline, arena leaderboard, and cost tracking"
+      />
 
       {isLoading ? (
         <div className="space-y-4">
@@ -105,7 +96,6 @@ export function AnalyticsDashboard() {
         <div className="flex flex-col items-center justify-center h-48 text-[var(--color-text-muted)]">
           <BarChart3 className="w-8 h-8 mb-2 opacity-50" />
           <p className="text-sm">No analytics data available</p>
-          {!user && <p className="text-xs mt-1">Sign in to see cloud analytics</p>}
         </div>
       ) : (
         <div className="space-y-4">
@@ -122,7 +112,7 @@ export function AnalyticsDashboard() {
               icon={Cpu}
               label="Unique Models"
               value={totalModels}
-              sub={totalModels > 0 ? `across ${totalTypes} archive types` : 'sign in for model data'}
+              sub={totalModels > 0 ? `across ${totalTypes} archive types` : 'no model data yet'}
               color="text-blue-400"
             />
             <StatCard
@@ -151,11 +141,11 @@ export function AnalyticsDashboard() {
 
           {/* Charts grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <ChartPanel title="Model Usage (Top 10)" hint={!user ? 'Sign in for model data' : undefined}>
+            <ChartPanel title="Model Usage (Top 10)">
               <ModelUsageChart data={analytics.modelUsage} />
             </ChartPanel>
 
-            <ChartPanel title="Archive Types" hint={!user ? 'Sign in for type data' : undefined}>
+            <ChartPanel title="Archive Types">
               <TypeDistributionChart data={analytics.typeDistribution} />
             </ChartPanel>
 
@@ -165,12 +155,12 @@ export function AnalyticsDashboard() {
           </div>
 
           {/* Activity timeline - full width */}
-          <ChartPanel title="Activity Timeline" hint={!user ? 'Sign in for activity data' : undefined}>
+          <ChartPanel title="Activity Timeline">
             <ActivityTimelineChart data={analytics.activityTimeline} />
           </ChartPanel>
 
           {/* Top Models table */}
-          <ChartPanel title="Arena Leaderboard" hint={!user ? 'Sign in for arena data' : undefined}>
+          <ChartPanel title="Arena Leaderboard">
             <TopModelsTable data={analytics.topModels} />
           </ChartPanel>
         </div>

@@ -24,7 +24,13 @@ import {
   Lightbulb,
   Scan,
   FileBarChart,
+  LogIn,
+  Cloud,
+  ExternalLink,
+  User,
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { JUBIT_BASE } from '@/lib/config';
 
 const NAV_SECTIONS = [
   {
@@ -89,6 +95,8 @@ const NAV_SECTIONS = [
 ];
 
 export function Sidebar() {
+  const { user, loading, signIn } = useAuth();
+
   return (
     <aside className="w-64 flex-shrink-0 bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] flex flex-col h-full overflow-y-auto">
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
@@ -130,8 +138,40 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-4 py-3 border-t border-[var(--color-border)]">
-        <span className="text-xs text-[var(--color-text-muted)]">localhost:8081</span>
+      <div className="px-4 py-3 border-t border-[var(--color-border)] space-y-2">
+        {!loading && user ? (
+          <div className="flex items-center gap-2">
+            {user.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt="" className="w-5 h-5 rounded-full flex-shrink-0" />
+            ) : (
+              <User className="w-4 h-4 text-[var(--color-text-muted)] flex-shrink-0" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-[var(--color-text-secondary)] truncate">{user.email || 'User'}</p>
+              <p className="text-[10px] text-teal-400 flex items-center gap-1">
+                <Cloud className="w-2.5 h-2.5" />
+                Connected
+              </p>
+            </div>
+          </div>
+        ) : !loading ? (
+          <button
+            onClick={() => signIn('google')}
+            className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-bg-tertiary)] hover:text-teal-400 transition-colors"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            Sign in for cloud sync
+          </button>
+        ) : null}
+        <a
+          href={JUBIT_BASE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-[10px] text-[var(--color-text-muted)] hover:text-blue-400 transition-colors"
+        >
+          <ExternalLink className="w-2.5 h-2.5" />
+          jubit.ai
+        </a>
       </div>
     </aside>
   );

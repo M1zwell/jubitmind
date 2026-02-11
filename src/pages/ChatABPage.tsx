@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { MessageSquare, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { LoginButton } from '@/components/auth/LoginButton';
+import { SignInBanner } from '@/components/auth/SignInBanner';
 import { JubitChatEmbed } from '@/components/embed/JubitEmbed';
 
 // Map product type → jubit.ai path for loading archived rooms
@@ -49,22 +49,13 @@ export function ChatABPage() {
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
-          <LoginButton />
         </div>
       </div>
 
-      {/* Sign-in prompt */}
-      {!user && (
-        <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3 mb-3 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-yellow-400">Sign in for full access</p>
-            <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
-              Authentication syncs automatically to the embedded chat
-            </p>
-          </div>
-          <LoginButton />
-        </div>
-      )}
+      <SignInBanner
+        feature="embedded chat"
+        detail="Authentication syncs automatically to the embedded chat session"
+      />
 
       {/* Embedded ChatAB */}
       <div className="flex-1 rounded-lg overflow-hidden border border-[var(--color-border)]">

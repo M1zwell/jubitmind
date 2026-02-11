@@ -24,10 +24,10 @@ Download the latest desktop app — no terminal, no git clone, no Python require
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| **macOS** | [JubitMind.dmg](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0-universal.dmg) | Universal (Intel + Apple Silicon) |
-| **macOS** | [JubitMind.zip](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0-universal-mac.zip) | ZIP archive |
-| **Windows** | [JubitMind-Setup.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-1.2.0.exe) | NSIS installer |
-| **Windows** | [JubitMind-Portable.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0.exe) | Portable (no install) |
+| **macOS** | [JubitMind.dmg](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-universal.dmg) | Universal (Intel + Apple Silicon) |
+| **macOS** | [JubitMind.zip](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0-universal-mac.zip) | ZIP archive |
+| **Windows** | [JubitMind-Setup.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-0.77.0.exe) | NSIS installer |
+| **Windows** | [JubitMind-Portable.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-0.77.0.exe) | Portable (no install) |
 
 > **First launch:** A setup wizard will guide you through tool detection, extraction engine configuration, and provider setup.
 

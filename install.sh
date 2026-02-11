@@ -23,7 +23,7 @@ warn()  { echo -e "${YELLOW}⚠${RESET} $*"; }
 fail()  { echo -e "${RED}✗${RESET} $*"; exit 1; }
 
 echo -e "\n${BOLD}╔═══════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║  JubitMind Installer v1.2.0       ║${RESET}"
+echo -e "${BOLD}║  JubitMind Installer v0.77       ║${RESET}"
 echo -e "${BOLD}║  AI Interaction Audit Platform    ║${RESET}"
 echo -e "${BOLD}╚═══════════════════════════════════╝${RESET}\n"
 

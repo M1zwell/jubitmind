@@ -8,7 +8,7 @@ import { ArchiveCard } from '@/components/archives/ArchiveCard';
 import { ArchiveDetailRouter } from '@/components/archives/details/ArchiveDetailRouter';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { SkeletonDetail } from '@/components/shared/SkeletonDetail';
-import { LoginButton } from '@/components/auth/LoginButton';
+import { SignInBanner } from '@/components/auth/SignInBanner';
 import { getSourceLink } from '@/lib/config';
 
 type SourceFilter = 'all' | 'supabase' | 'local';
@@ -125,9 +125,13 @@ export function ArchivedDiscussions() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
-          <LoginButton />
         </div>
       </div>
+
+      <SignInBanner
+        feature="cloud archives"
+        detail="View and manage archives synced from jubit.ai"
+      />
 
       {/* Stats bar */}
       <div className="flex items-center gap-4 mb-3 text-xs text-[var(--color-text-muted)]">
@@ -149,7 +153,7 @@ export function ArchivedDiscussions() {
           </>
         )}
         {!user && (
-          <span className="text-yellow-500/80">Sign in to see cloud archives</span>
+          <span className="text-[var(--color-text-muted)]">Sign in for cloud archives</span>
         )}
       </div>
 
@@ -241,9 +245,6 @@ export function ArchivedDiscussions() {
           <div className="flex flex-col items-center justify-center h-32 text-[var(--color-text-muted)]">
             <Archive className="w-8 h-8 mb-2 opacity-50" />
             <p className="text-sm">No archives found</p>
-            {source === 'supabase' && !user && (
-              <p className="text-xs mt-1">Sign in to view cloud archives</p>
-            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
