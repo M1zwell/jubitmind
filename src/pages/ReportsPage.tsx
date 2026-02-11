@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileBarChart, RefreshCw, Download, Clock, Shield, AlertTriangle } from 'lucide-react';
+import { FileBarChart, RefreshCw, Download, Clock, Shield, AlertTriangle, Eye } from 'lucide-react';
 import { useLatestReport, useReportHistory, useGenerateReport } from '@/hooks/useReports';
 import { ReportPreviewDialog } from '@/components/reports/ReportPreviewDialog';
 import { api } from '@/lib/api';
@@ -16,8 +16,18 @@ export function ReportsPage() {
   const { data: historyData } = useReportHistory(10);
   const generateReport = useGenerateReport();
   const [showReport, setShowReport] = useState<CombinedReport | null>(null);
+  const [loadingSample, setLoadingSample] = useState(false);
 
   const report = latestData?.report;
+
+  const viewSample = async () => {
+    setLoadingSample(true);
+    try {
+      const { report: sample } = await api.reports.example();
+      setShowReport(sample);
+    } catch { /* ignore */ }
+    setLoadingSample(false);
+  };
 
   useEffect(() => {
     if (generateReport.isSuccess && generateReport.data?.report) {
@@ -34,25 +44,23 @@ export function ReportsPage() {
           <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">Reports</h1>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={viewSample}
+            disabled={loadingSample}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors disabled:opacity-50"
+          >
+            {loadingSample ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />}
+            Sample
+          </button>
           {report && (
-            <>
-              <a
-                href={api.reports.exportUrl('md')}
-                download
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Markdown
-              </a>
-              <a
-                href={api.reports.exportUrl('pdf')}
-                download
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                PDF
-              </a>
-            </>
+            <a
+              href={api.reports.exportUrl('pdf')}
+              download
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download PDF
+            </a>
           )}
           <button
             onClick={() => generateReport.mutate(undefined)}
@@ -80,14 +88,24 @@ export function ReportsPage() {
           <p className="text-xs text-[var(--color-text-muted)] mb-4">
             Generate a comprehensive report combining security audit and usage insights.
           </p>
-          <button
-            onClick={() => generateReport.mutate(undefined)}
-            disabled={generateReport.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors disabled:opacity-50"
-          >
-            <FileBarChart className="w-4 h-4" />
-            Generate Your First Report
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => generateReport.mutate(undefined)}
+              disabled={generateReport.isPending}
+              className="flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors disabled:opacity-50"
+            >
+              <FileBarChart className="w-4 h-4" />
+              Generate Your First Report
+            </button>
+            <button
+              onClick={viewSample}
+              disabled={loadingSample}
+              className="flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors disabled:opacity-50"
+            >
+              {loadingSample ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+              View Sample
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">

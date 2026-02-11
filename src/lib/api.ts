@@ -313,6 +313,8 @@ export const api = {
       return request<{ reports: import('./types').CombinedReport[]; count: number }>(`/reports/history${query}`);
     },
     exportUrl: (format: 'pdf' | 'md') => `/api/reports/export?format=${format}`,
+    example: () => request<{ report: import('./types').CombinedReport }>('/reports/example?format=json'),
+    exampleUrl: (format: 'pdf' | 'md') => `/api/reports/example?format=${format}`,
   },
 
   // Archives (unified Supabase + local)

@@ -159,8 +159,7 @@ export async function classifySession(
 
       const usage = message?.usage as Record<string, number> | undefined;
       if (usage) {
-        existing.inputTokens +=
-          (usage.input_tokens || 0) + (usage.cache_read_input_tokens || 0);
+        existing.inputTokens += usage.input_tokens || 0;
         existing.outputTokens += usage.output_tokens || 0;
       }
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   generateCombinedReport,
+  generateExampleReport,
   getLatestCombinedReport,
   getCombinedReportHistory,
   exportCombinedMarkdown,
@@ -53,6 +54,33 @@ router.get('/export', async (req, res) => {
     return res.send(pdfBuffer);
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Export failed' });
+  }
+});
+
+// GET /api/reports/example?format=pdf|md|json - Download an example report with rich sample data
+router.get('/example', (req, res) => {
+  try {
+    const format = (req.query.format as string) || 'pdf';
+    const report = generateExampleReport();
+
+    if (format === 'json') {
+      return res.json({ report });
+    }
+
+    if (format === 'md') {
+      const markdown = exportCombinedMarkdown(report);
+      res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="jubitmind-example-report.md"');
+      return res.send(markdown);
+    }
+
+    // Default: PDF
+    const pdfBuffer = exportCombinedPdf(report);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="jubitmind-example-report.pdf"');
+    return res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Example generation failed' });
   }
 });
 
