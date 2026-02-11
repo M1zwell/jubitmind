@@ -4,6 +4,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/M1zwell/jubitmind/releases/latest"><img src="https://img.shields.io/github/v/release/M1zwell/jubitmind?label=Download&color=14b8a6" alt="Download"></a>
   <a href="https://github.com/M1zwell/jubitmind/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/TypeScript-5.6-blue" alt="TypeScript">
   <img src="https://img.shields.io/badge/React-18-61dafb" alt="React">
@@ -16,6 +17,23 @@
 **JubitMind** is a local AI interaction audit and governance platform. It captures, categorizes, risk-scores, and tags all human-AI conversations across 11 AI coding tools and providers. Built for developers and teams who value transparency, safety, and the intellectual property generated through human-AI collaboration.
 
 *Part of the [Jubit AI](https://jubit.ai) / [dseek](https://dseek.ai) ecosystem.*
+
+## Download
+
+Download the latest desktop app — no terminal, no git clone, no Python required:
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| **macOS** | [JubitMind.dmg](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0-universal.dmg) | Universal (Intel + Apple Silicon) |
+| **macOS** | [JubitMind.zip](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0-universal-mac.zip) | ZIP archive |
+| **Windows** | [JubitMind-Setup.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-Setup-1.2.0.exe) | NSIS installer |
+| **Windows** | [JubitMind-Portable.exe](https://github.com/M1zwell/jubitmind/releases/latest/download/JubitMind-1.2.0.exe) | Portable (no install) |
+
+> **First launch:** A setup wizard will guide you through tool detection, extraction engine configuration, and provider setup.
+
+Or install from source — see [Quick Start](#quick-start) below.
+
+Also available at **[dseek.ai/jubitmind](https://dseek.ai/jubitmind)** for direct download.
 
 ## Why JubitMind?
 
@@ -130,10 +148,13 @@ LLM-powered deep analysis of individual sessions:
 
 ## Quick Start
 
-### Prerequisites
+### Desktop App (Recommended)
 
-- Node.js 20+
-- npm 9+
+Download the latest release from [GitHub Releases](https://github.com/M1zwell/jubitmind/releases/latest) or [dseek.ai/jubitmind](https://dseek.ai/jubitmind). Double-click to install — everything is bundled including the LangExtract extraction engine.
+
+### From Source
+
+**Prerequisites:** Node.js 20+, npm 9+
 
 ### Development
 
@@ -181,14 +202,14 @@ Docker Compose mounts read-only volumes for AI tool data directories.
 # Development
 npm run electron:dev
 
-# Build for macOS
-npm run electron:build:mac
+# Build for macOS (with bundled LangExtract sidecar)
+npm run electron:build:full:mac
 
-# Build for Windows
-npm run electron:build:win
+# Build for Windows (with bundled LangExtract sidecar)
+npm run electron:build:full:win
 ```
 
-Produces `.dmg` for macOS and `.exe` installer for Windows.
+Produces `.dmg` for macOS and `.exe` installer for Windows. The `full` variants build the Python sidecar into a standalone binary first (requires Python 3.10+).
 
 ## Architecture
 
@@ -331,6 +352,9 @@ All environment variables are optional. JubitMind works fully offline with just 
 | `npm run electron:dev` | Build + run Electron app |
 | `npm run electron:build:mac` | Build macOS installer (.dmg) |
 | `npm run electron:build:win` | Build Windows installer (.exe) |
+| `npm run electron:build:full:mac` | Build macOS with bundled sidecar |
+| `npm run electron:build:full:win` | Build Windows with bundled sidecar |
+| `npm run sidecar:build` | Build LangExtract sidecar binary |
 
 ## Screenshots
 
