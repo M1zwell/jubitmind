@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Users, RefreshCw, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { SignInBanner } from '@/components/auth/SignInBanner';
 import { JubitDebateEmbed } from '@/components/embed/JubitEmbed';
 
 export function ChatLabPage() {
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('room') || undefined;
   const [sessionKey, setSessionKey] = useState(0);

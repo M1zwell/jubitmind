@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { MessageSquare, RefreshCw, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { SignInBanner } from '@/components/auth/SignInBanner';
 import { JubitChatEmbed } from '@/components/embed/JubitEmbed';
 
@@ -12,7 +11,6 @@ const TYPE_PATH_MAP: Record<string, string> = {
 };
 
 export function ChatABPage() {
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('room') || undefined;
   const archiveType = searchParams.get('type') || undefined;

@@ -1,14 +1,14 @@
 import { useAuth } from '@/hooks/useAuth';
-import { LogIn } from 'lucide-react';
-import type { Provider } from '@supabase/supabase-js';
+import { SignInBanner } from './SignInBanner';
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  feature?: string;
   fallback?: React.ReactNode;
 }
 
-export function AuthGuard({ children, fallback }: AuthGuardProps) {
-  const { user, loading, signIn } = useAuth();
+export function AuthGuard({ children, feature, fallback }: AuthGuardProps) {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -21,19 +21,10 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
   if (!user) {
     return fallback || (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <LogIn className="w-8 h-8 text-[var(--color-text-muted)]" />
-        <p className="text-sm text-[var(--color-text-muted)]">Sign in to access this feature</p>
-        <div className="flex gap-2">
-          {(['google', 'apple'] as Provider[]).map((provider) => (
-            <button
-              key={provider}
-              onClick={() => signIn(provider)}
-              className="px-3 py-1.5 text-xs rounded bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors capitalize"
-            >
-              {provider}
-            </button>
-          ))}
-        </div>
+        <SignInBanner
+          feature={feature || "this feature"}
+          detail="Sign in with your jubit.ai account to continue"
+        />
       </div>
     );
   }
