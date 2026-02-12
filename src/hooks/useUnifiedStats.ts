@@ -5,7 +5,7 @@ export interface AdapterInfo {
   id: string;
   name: string;
   icon: string;
-  category: 'cli' | 'ide' | 'extension' | 'api-router';
+  category: 'cli' | 'ide' | 'extension' | 'api-router' | 'browser';
   description: string;
   available: boolean;
   sessionCount?: number;

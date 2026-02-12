@@ -189,6 +189,16 @@ const TAG_RULES: TagRule[] = [
       return sqlKeywords.some((k) => text.includes(k)) ? 0.8 : 0;
     },
   },
+  {
+    name: 'browser-conversation',
+    category: 'operational',
+    detect: (ctx) => {
+      const keywords = ['browser', 'chatgpt', 'claude.ai', 'gemini', 'perplexity', 'deepseek', 'qwen', 'kimi'];
+      const text = ctx.allText.toLowerCase();
+      const matches = keywords.filter((k) => text.includes(k)).length;
+      return matches >= 1 ? 0.8 : 0;
+    },
+  },
 ];
 
 function extractContent(msg: { type: string; message?: { role: string; content: unknown } }): {

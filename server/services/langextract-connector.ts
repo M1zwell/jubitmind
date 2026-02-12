@@ -7,6 +7,7 @@
 
 import fsp from 'fs/promises';
 import path from 'path';
+import { PATHS } from './config-resolver.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,7 +89,7 @@ export interface SidecarConfig {
 // ---------------------------------------------------------------------------
 
 const SIDECAR_URL = process.env.LANGEXTRACT_URL || 'http://127.0.0.1:3100';
-const RESULTS_DIR = path.join(process.cwd(), 'data', 'extractions');
+const RESULTS_DIR = path.join(PATHS.dataDir, 'extractions');
 const CACHE_TTL = 300_000; // 5 minutes
 
 // ---------------------------------------------------------------------------

@@ -7,10 +7,11 @@
 
 import fsp from 'fs/promises';
 import path from 'path';
+import { PATHS } from './config-resolver.js';
 
 const CONFIG_PATHS = [
-  path.resolve(process.cwd(), '..', 'litellm-proxy', 'config.yaml'),
-  path.resolve(process.cwd(), 'litellm-proxy', 'config.yaml'),
+  path.resolve(PATHS.appDir, '..', 'litellm-proxy', 'config.yaml'),
+  path.resolve(PATHS.appDir, 'litellm-proxy', 'config.yaml'),
   '/etc/litellm/config.yaml',
 ];
 

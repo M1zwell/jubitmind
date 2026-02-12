@@ -14,6 +14,19 @@ import { difyAdapter } from './dify.js';
 import { cozeAdapter } from './coze.js';
 import { minimaxAdapter } from './minimax.js';
 
+// Browser-based AI tools (CDP)
+import { chatgptBrowserAdapter } from './chatgpt-browser.js';
+import { claudeBrowserAdapter } from './claude-browser.js';
+import { geminiBrowserAdapter } from './gemini-browser.js';
+import { perplexityBrowserAdapter } from './perplexity-browser.js';
+import { deepseekBrowserAdapter } from './deepseek-browser.js';
+import { qwenBrowserAdapter } from './qwen-browser.js';
+import { kimiBrowserAdapter } from './kimi-browser.js';
+import { jubitBrowserAdapter } from './jubit-browser.js';
+import { cursorBrowserAdapter } from './cursor-browser.js';
+import { kiloBrowserAdapter } from './kilo-browser.js';
+import { antigravityBrowserAdapter } from './antigravity-browser.js';
+
 export function initAdapters(): void {
   // CLI tools
   registry.register(claudeCodeAdapter);
@@ -36,6 +49,19 @@ export function initAdapters(): void {
   registry.register(difyAdapter);
   registry.register(cozeAdapter);
   registry.register(minimaxAdapter);
+
+  // Browser-based AI tools (CDP)
+  registry.register(chatgptBrowserAdapter);
+  registry.register(claudeBrowserAdapter);
+  registry.register(geminiBrowserAdapter);
+  registry.register(perplexityBrowserAdapter);
+  registry.register(deepseekBrowserAdapter);
+  registry.register(qwenBrowserAdapter);
+  registry.register(kimiBrowserAdapter);
+  registry.register(jubitBrowserAdapter);
+  registry.register(cursorBrowserAdapter);
+  registry.register(kiloBrowserAdapter);
+  registry.register(antigravityBrowserAdapter);
 }
 
 export { registry } from './registry.js';

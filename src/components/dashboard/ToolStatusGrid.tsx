@@ -1,12 +1,12 @@
 import {
   Terminal, MousePointer2, GitBranch, ArrowRight, Wind, Sparkles,
-  CheckCircle2, XCircle, Code2, Gauge, Wand2, Rocket, Blocks,
+  CheckCircle2, XCircle, Code2, Gauge, Wand2, Rocket, Blocks, Globe,
 } from 'lucide-react';
 import type { AdapterInfo } from '@/hooks/useUnifiedStats';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, MousePointer2, GitBranch, ArrowRight, Wind, Sparkles,
-  Code2, Gauge, Wand2, Rocket, Blocks,
+  Code2, Gauge, Wand2, Rocket, Blocks, Globe,
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -14,6 +14,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   ide: 'text-blue-400',
   extension: 'text-purple-400',
   'api-router': 'text-amber-400',
+  browser: 'text-green-400',
 };
 
 interface Props {

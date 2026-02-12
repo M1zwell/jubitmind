@@ -3,6 +3,7 @@ import path from 'path';
 import { jsPDF } from 'jspdf';
 import { runInsightsNow, getLatestInsight, type InsightReport } from './insights-agent.js';
 import { runAuditNow, getLatestReport as getLatestAudit, type AuditReport } from './auditor-agent.js';
+import { PATHS } from './config-resolver.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,7 +40,7 @@ export interface CombinedReport {
 // Constants
 // ---------------------------------------------------------------------------
 
-const REPORTS_DIR = path.join(process.cwd(), 'data', 'reports');
+const REPORTS_DIR = path.join(PATHS.dataDir, 'reports');
 
 // ---------------------------------------------------------------------------
 // Report persistence

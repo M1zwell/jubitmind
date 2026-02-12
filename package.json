@@ -41,6 +41,7 @@
     "@supabase/supabase-js": "^2.95.3",
     "@tanstack/react-query": "^5.90.0",
     "better-sqlite3": "^12.6.2",
+    "chrome-remote-interface": "^0.34.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "electron-store": "^11.0.2",

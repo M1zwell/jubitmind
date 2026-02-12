@@ -92,5 +92,13 @@
   </div>
   <p class="status" id="status">Starting server...</p>
   <p class="error" id="error"></p>
+  <p id="mac-note" style="display:none; font-size: 11px; color: #8b949e; margin-top: 16px; max-width: 280px; text-align: center; line-height: 1.4;">
+    If macOS says "unverified", right-click the app and select Open
+  </p>
+  <script>
+    if (navigator.platform.includes('Mac')) {
+      document.getElementById('mac-note').style.display = 'block';
+    }
+  </script>
 </body>
 </html>

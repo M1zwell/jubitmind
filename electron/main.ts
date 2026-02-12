@@ -339,28 +339,46 @@ function startSidecar(): ChildProcess | null {
 
 /** Start the Express server as a child process. */
 function startServer(port: number): ChildProcess {
-  const serverPath = path.join(__dirname, '..', 'dist', 'server', 'index.js');
+  // appDir = resources/app/ in packaged build, project root in dev
+  const appDir = path.join(__dirname, '..');
+  const serverPath = path.join(appDir, 'dist', 'server', 'index.js');
+
   const proc = spawn(process.execPath, [serverPath], {
+    cwd: appDir,  // critical: server uses process.cwd() for data paths
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
       NODE_ENV: 'production',
       PORT: String(port),
       JUBITMIND_PROJECT_ROOT: app.getPath('home'),
+      JUBITMIND_APP_DIR: appDir,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+
+  let serverError = '';
 
   proc.stdout?.on('data', (data) => {
     console.log(`[server] ${data.toString().trim()}`);
   });
 
   proc.stderr?.on('data', (data) => {
-    console.error(`[server] ${data.toString().trim()}`);
+    const msg = data.toString().trim();
+    serverError += msg + '\n';
+    console.error(`[server] ${msg}`);
   });
 
   proc.on('exit', (code) => {
     console.log(`[server] exited with code ${code}`);
+    if (code !== 0 && code !== null && mainWindow) {
+      const errSnippet = JSON.stringify(serverError.slice(0, 500));
+      mainWindow.webContents.executeJavaScript(`
+        const s = document.getElementById('status');
+        if (s) { s.textContent = 'Server crashed (code ${code})'; s.style.color = '#f87171'; }
+        const err = document.getElementById('error');
+        if (err) { err.style.display = 'block'; err.textContent = ${errSnippet}; }
+      `).catch(() => {});
+    }
   });
 
   return proc;

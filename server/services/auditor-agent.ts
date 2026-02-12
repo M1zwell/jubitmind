@@ -4,6 +4,7 @@ import os from 'os';
 import { getAllSessions, type CachedSessionMeta } from './session-cache.js';
 import { getStatsCache } from './claude-sessions.js';
 import { refreshAll } from './session-cache.js';
+import { PATHS } from './config-resolver.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,7 +44,7 @@ export interface AuditReport {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_INTERVAL_MS = 1_800_000; // 30 minutes
-const REPORTS_DIR = path.join(process.cwd(), 'data', 'auditor');
+const REPORTS_DIR = path.join(PATHS.dataDir, 'auditor');
 const TEN_MB = 10 * 1024 * 1024;
 const COST_SPIKE_THRESHOLD_PERCENT = 50; // alert if cost jumps >50%
 

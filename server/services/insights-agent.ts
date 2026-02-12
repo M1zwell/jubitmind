@@ -2,6 +2,7 @@ import fsp from 'fs/promises';
 import path from 'path';
 import { getAllSessionsUnlimited, type CachedSessionMeta } from './session-cache.js';
 import { queryInteractions, getIndexStats } from './interaction-index.js';
+import { PATHS } from './config-resolver.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -34,7 +35,7 @@ export interface InsightReport {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_INTERVAL_MS = 3_600_000; // 1 hour
-const REPORTS_DIR = path.join(process.cwd(), 'data', 'insights');
+const REPORTS_DIR = path.join(PATHS.dataDir, 'insights');
 
 // Rough cost estimates per 1M tokens
 const COST_PER_MILLION: Record<string, number> = {

@@ -344,4 +344,49 @@ export const api = {
       return res.json();
     },
   },
+
+  // CDP (Chrome DevTools Protocol)
+  cdp: {
+    status: () => request<{ connected: boolean; host: string; port: number; chromeVersion?: string; tabCount?: number; aiToolTabs?: number; error?: string }>('/cdp/status'),
+    connect: (body?: { host?: string; port?: number }) =>
+      request<{ connected: boolean; chromeVersion?: string; error?: string }>('/cdp/connect', { method: 'POST', body: JSON.stringify(body || {}) }),
+    disconnect: () =>
+      request<{ ok: boolean }>('/cdp/disconnect', { method: 'POST' }),
+    tabs: () =>
+      request<{ tabs: Array<{ id: string; title: string; url: string; detectedTool?: string }> }>('/cdp/tabs'),
+    aiTabs: () =>
+      request<{ tabs: Array<{ id: string; title: string; url: string; detectedTool?: string }> }>('/cdp/tabs/ai'),
+    tabAuth: (tabId: string) =>
+      request<{ tool: string; signedIn: boolean; username?: string; email?: string; indicators: string[] }>(`/cdp/tabs/${tabId}/auth`),
+  },
+
+  // Unified Memory
+  unifiedMemory: {
+    search: (params?: { text?: string; adapters?: string[]; layers?: string[]; tags?: string[]; dateFrom?: string; dateTo?: string; role?: string; project?: string; limit?: number; offset?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.text) query.set('text', params.text);
+      if (params?.adapters?.length) query.set('adapters', params.adapters.join(','));
+      if (params?.layers?.length) query.set('layers', params.layers.join(','));
+      if (params?.tags?.length) query.set('tags', params.tags.join(','));
+      if (params?.dateFrom) query.set('dateFrom', params.dateFrom);
+      if (params?.dateTo) query.set('dateTo', params.dateTo);
+      if (params?.role) query.set('role', params.role);
+      if (params?.project) query.set('project', params.project);
+      if (params?.limit) query.set('limit', String(params.limit));
+      if (params?.offset) query.set('offset', String(params.offset));
+      return request<{ entries: unknown[]; total: number; facets: { byAdapter: Record<string, number>; byLayer: Record<string, number>; byTag: Record<string, number>; byProject: Record<string, number> } }>(`/unified-memory/search?${query}`);
+    },
+    stats: () =>
+      request<{ totalEntries: number; byAdapter: Record<string, number>; byLayer: Record<string, number>; oldest?: string; newest?: string; totalSizeBytes: number }>('/unified-memory/stats'),
+    ingest: () =>
+      request<{ ingested: number; adapters: string[] }>('/unified-memory/ingest', { method: 'POST' }),
+    correlate: () =>
+      request<{ correlated: number }>('/unified-memory/correlate', { method: 'POST' }),
+    entry: (id: string) =>
+      request<{ entry: unknown }>(`/unified-memory/entry/${id}`),
+    entryGraph: (id: string) =>
+      request<{ relationships: unknown[] }>(`/unified-memory/entry/${id}/graph`),
+    autoTier: () =>
+      request<{ updated: number }>('/unified-memory/auto-tier', { method: 'POST' }),
+  },
 };

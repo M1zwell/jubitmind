@@ -27,6 +27,8 @@ import { InsightsPage } from '@/pages/InsightsPage';
 import { ExtractionsPage } from '@/pages/ExtractionsPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { SetupWizardPage } from '@/pages/SetupWizardPage';
+import { CDPBrowserPage } from '@/pages/CDPBrowserPage';
+import { UnifiedMemoryPage } from '@/pages/UnifiedMemoryPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +71,8 @@ export default function App() {
             <Route path="/extractions" element={<ExtractionsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/health" element={<UsageDashboard />} />
+            <Route path="/browser" element={<CDPBrowserPage />} />
+            <Route path="/unified-memory" element={<UnifiedMemoryPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

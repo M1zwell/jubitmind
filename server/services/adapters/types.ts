@@ -26,6 +26,12 @@ export interface AdapterMessage {
   timestamp?: string;
   uuid?: string;
   metadata?: Record<string, unknown>;
+  /** Which adapter produced this message (for cross-tool correlation) */
+  sourceAdapter?: string;
+  /** When the content was created in the source tool (supermemory-inspired dual timestamp) */
+  documentDate?: string;
+  /** Semantic tags for cross-tool correlation */
+  memoryTags?: string[];
 }
 
 export interface AdapterStats {
@@ -46,7 +52,7 @@ export interface AIToolAdapter {
   /** Lucide icon name for the sidebar/cards */
   icon: string;
   /** Category for grouping */
-  category: 'cli' | 'ide' | 'extension' | 'api-router';
+  category: 'cli' | 'ide' | 'extension' | 'api-router' | 'browser';
   /** Short description */
   description: string;
 

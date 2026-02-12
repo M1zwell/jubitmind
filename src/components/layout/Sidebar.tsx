@@ -29,6 +29,8 @@ import {
   ExternalLink,
   User,
   Download,
+  Globe,
+  Database,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { JUBIT_BASE } from '@/lib/config';
@@ -55,6 +57,8 @@ const NAV_SECTIONS = [
       { to: '/extractions', icon: Scan, label: 'Extractions' },
       { to: '/reports', icon: FileBarChart, label: 'Reports' },
       { to: '/health', icon: Activity, label: 'Health' },
+      { to: '/browser', icon: Globe, label: 'Browser CDP' },
+      { to: '/unified-memory', icon: Database, label: 'Memory Store' },
     ],
   },
   {

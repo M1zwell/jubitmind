@@ -61,6 +61,8 @@ const CRITICAL_FILE_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /secret/i, label: 'secrets file' },
   { pattern: /\.kube\/config/, label: 'kube config' },
   { pattern: /aws\/credentials/, label: 'AWS credentials' },
+  { pattern: /cookie|session.?token/i, label: 'session/cookie data' },
+  { pattern: /bearer\s+[a-zA-Z0-9\-._~+\/]+=*/i, label: 'bearer token' },
 ];
 
 const HIGH_BASH_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
@@ -80,6 +82,18 @@ const MEDIUM_BASH_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /\bnpm\s+(install|run|build)\b/, label: 'npm command' },
   { pattern: /\bmake\b/, label: 'make' },
   { pattern: /\bcargo\s+build\b/, label: 'cargo build' },
+];
+
+const BROWSER_CONTENT_PATTERNS: Array<{ pattern: RegExp; label: string; score: number }> = [
+  { pattern: /\b(sk-[a-zA-Z0-9]{20,})\b/, label: 'OpenAI API key', score: 4 },
+  { pattern: /\b(AIza[a-zA-Z0-9_-]{35})\b/, label: 'Google API key', score: 4 },
+  { pattern: /\b(ghp_[a-zA-Z0-9]{36})\b/, label: 'GitHub token', score: 4 },
+  { pattern: /\b(AKIA[A-Z0-9]{16})\b/, label: 'AWS access key', score: 4 },
+  { pattern: /\b(xox[bprs]-[a-zA-Z0-9-]+)\b/, label: 'Slack token', score: 4 },
+  { pattern: /password\s*[:=]\s*['"][^'"]+['"]/i, label: 'Password in text', score: 3 },
+  { pattern: /api[_-]?key\s*[:=]\s*['"][^'"]+['"]/i, label: 'API key in text', score: 3 },
+  { pattern: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, label: 'Credit card number', score: 4 },
+  { pattern: /\b\d{3}-\d{2}-\d{4}\b/, label: 'SSN pattern', score: 4 },
 ];
 
 // --- Scoring functions ---
@@ -225,6 +239,20 @@ export function scoreMessageContent(
     },
     toolUses,
   };
+}
+
+export function scoreBrowserContent(text: string): { score: number; reasons: string[] } {
+  const reasons: string[] = [];
+  let maxScore = 1;
+
+  for (const { pattern, label, score } of BROWSER_CONTENT_PATTERNS) {
+    if (pattern.test(text)) {
+      reasons.push(label);
+      if (score > maxScore) maxScore = score;
+    }
+  }
+
+  return { score: maxScore, reasons };
 }
 
 export function computeSessionRisk(

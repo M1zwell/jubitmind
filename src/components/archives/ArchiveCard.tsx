@@ -102,14 +102,14 @@ export function ArchiveCard({ item, onClick, onDelete, onExport }: ArchiveCardPr
       {/* Model chips */}
       {item.models && item.models.length > 0 && (
         <div className="flex items-center gap-1 flex-wrap mb-2">
-          {item.models.slice(0, 3).map((model) => (
+          {[...new Set(item.models)].slice(0, 3).map((model) => (
             <span key={model} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[var(--color-bg-tertiary)] text-[10px] text-[var(--color-text-secondary)]">
               <Cpu className="w-2.5 h-2.5 text-[var(--color-text-muted)]" />
               {model}
             </span>
           ))}
-          {item.models.length > 3 && (
-            <span className="text-[10px] text-[var(--color-text-muted)]">+{item.models.length - 3}</span>
+          {[...new Set(item.models)].length > 3 && (
+            <span className="text-[10px] text-[var(--color-text-muted)]">+{[...new Set(item.models)].length - 3}</span>
           )}
         </div>
       )}

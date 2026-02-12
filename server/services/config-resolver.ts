@@ -8,6 +8,9 @@ const HOME = os.homedir();
 const IS_DEMO = process.env.DEMO_MODE === 'true';
 const IS_WINDOWS = os.platform() === 'win32';
 
+// App directory: set by Electron's spawn env in packaged mode, falls back to cwd for dev
+const APP_DIR = process.env.JUBITMIND_APP_DIR || process.cwd();
+
 // In demo mode, point projectsDir to bundled sample sessions
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // From dist/server/services/ -> go up 3 levels to project root -> data/demo-sessions/
@@ -39,8 +42,16 @@ function resolveClaudeBinary(): string {
     : path.join(HOME, '.local', 'bin', 'claude');
 }
 
+export const CDP_CONFIG = {
+  enabled: process.env.CDP_ENABLED === 'true',
+  host: process.env.CDP_HOST || '127.0.0.1',
+  port: Number(process.env.CDP_PORT) || 9222,
+};
+
 export const PATHS = {
   projectRoot: PROJECT_ROOT,
+  appDir: APP_DIR,
+  dataDir: path.join(APP_DIR, 'data'),
   claudeDir: path.join(PROJECT_ROOT, '.claude'),
   settingsLocal: path.join(PROJECT_ROOT, '.claude', 'settings.local.json'),
   mcpConfig: path.join(PROJECT_ROOT, '.claude', 'mcp-config.json'),
