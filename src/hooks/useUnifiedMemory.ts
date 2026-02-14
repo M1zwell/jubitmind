@@ -18,6 +18,14 @@ export function useMemoryStats() {
   });
 }
 
+export function useEmbeddingsStats() {
+  return useQuery({
+    queryKey: ['unified-memory-embeddings-stats'],
+    queryFn: () => api.unifiedMemory.embeddingsStats(),
+    staleTime: 60_000,
+  });
+}
+
 export function useMemoryIngest() {
   const qc = useQueryClient();
   return useMutation({
@@ -25,6 +33,7 @@ export function useMemoryIngest() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['unified-memory-search'] });
       qc.invalidateQueries({ queryKey: ['unified-memory-stats'] });
+      qc.invalidateQueries({ queryKey: ['unified-memory-embeddings-stats'] });
     },
   });
 }
@@ -46,6 +55,16 @@ export function useMemoryAutoTier() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['unified-memory-search'] });
       qc.invalidateQueries({ queryKey: ['unified-memory-stats'] });
+    },
+  });
+}
+
+export function useEmbeddingsBackfill() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.unifiedMemory.embeddingsBackfill(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['unified-memory-embeddings-stats'] });
     },
   });
 }

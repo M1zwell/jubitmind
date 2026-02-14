@@ -281,7 +281,7 @@ class MemoryStore {
         INNER JOIN memory_entries_fts fts ON fts.rowid = e.rowid
       `;
       selectFields = 'e.*, rank';
-      conditions.push('fts MATCH ?');
+      conditions.push('memory_entries_fts MATCH ?');
       params.push(query.text);
     } else {
       fromClause = 'memory_entries e';

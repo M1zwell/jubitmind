@@ -32,7 +32,7 @@ import { startAuditor } from './services/auditor-agent.js';
 import { classifyPendingSessions, refreshAll } from './services/session-cache.js';
 import { buildInteractionIndex } from './services/interaction-index.js';
 import { startInsightsAgent } from './services/insights-agent.js';
-import { memoryStore } from './services/memory/index.js';
+import { memoryStore, vectorStore } from './services/memory/index.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const __dirname = __serverDir;
@@ -107,6 +107,13 @@ app.listen(PORT, BIND_HOST, () => {
       await memoryStore.autoTierEntries();
     } catch (err) {
       console.error('[Memory] Auto-tier failed:', err);
+    }
+
+    // Initialize vector store for semantic search
+    try {
+      await vectorStore.initialize();
+    } catch (err) {
+      console.warn('[VectorStore] Initialization failed (semantic search unavailable):', err);
     }
   }, 3000);
 });

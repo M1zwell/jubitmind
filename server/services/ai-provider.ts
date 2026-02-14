@@ -51,9 +51,28 @@ export async function saveProviders(providers: Provider[]): Promise<void> {
   await fs.writeFile(PROVIDERS_PATH, content, 'utf-8');
 }
 
+/** Resolve the API key for a provider — falls back to env vars when config key is empty. */
+function resolveApiKey(provider: Provider): string {
+  if (provider.apiKey) return provider.apiKey;
+  // Well-known env var mappings
+  const envMap: Record<string, string> = {
+    litellm: 'LITELLM_MASTER_KEY',
+    openai: 'OPENAI_API_KEY',
+    gemini: 'GOOGLE_API_KEY',
+    anthropic: 'ANTHROPIC_API_KEY',
+  };
+  const envVar = envMap[provider.id];
+  if (envVar) return process.env[envVar] || '';
+  return '';
+}
+
 export async function getProvider(id: string): Promise<Provider | undefined> {
   const providers = await loadProviders();
-  return providers.find((p) => p.id === id);
+  const provider = providers.find((p) => p.id === id);
+  if (provider) {
+    provider.apiKey = resolveApiKey(provider);
+  }
+  return provider;
 }
 
 // --- Chat Completion (non-streaming) ---

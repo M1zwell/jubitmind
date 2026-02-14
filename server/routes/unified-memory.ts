@@ -1,26 +1,36 @@
 import { Router, type Request, type Response } from 'express';
-import { memoryStore, ingestAllAdapters, correlateMemories } from '../services/memory/index.js';
+import { memoryStore, vectorStore, ingestAllAdapters, correlateMemories, hybridSearch, backfillEmbeddings } from '../services/memory/index.js';
 import type { MemorySearchQuery } from '../services/memory/types.js';
+import type { SearchMode } from '../services/memory/hybrid-search.js';
 
 const router = Router();
 
-/** GET /api/unified-memory/search - Full-text search across all tool memories */
+/** GET /api/unified-memory/search - Search across all tool memories (keyword, semantic, or hybrid) */
 router.get('/search', async (req: Request, res: Response) => {
   try {
-    const query: MemorySearchQuery = {
-      text: req.query.text as string | undefined,
-      adapters: req.query.adapters ? (req.query.adapters as string).split(',') : undefined,
-      layers: req.query.layers ? (req.query.layers as string).split(',') as MemorySearchQuery['layers'] : undefined,
-      tags: req.query.tags ? (req.query.tags as string).split(',') : undefined,
-      dateFrom: req.query.dateFrom as string | undefined,
-      dateTo: req.query.dateTo as string | undefined,
-      role: req.query.role as 'user' | 'assistant' | undefined,
-      project: req.query.project as string | undefined,
-      limit: req.query.limit ? Number(req.query.limit) : 50,
-      offset: req.query.offset ? Number(req.query.offset) : 0,
-    };
+    const mode = (req.query.mode as SearchMode) || 'keyword';
+    const text = req.query.text as string | undefined;
+    const adapters = req.query.adapters ? (req.query.adapters as string).split(',') : undefined;
+    const layers = req.query.layers ? (req.query.layers as string).split(',') as MemorySearchQuery['layers'] : undefined;
+    const tags = req.query.tags ? (req.query.tags as string).split(',') : undefined;
+    const dateFrom = req.query.dateFrom as string | undefined;
+    const dateTo = req.query.dateTo as string | undefined;
+    const role = req.query.role as 'user' | 'assistant' | undefined;
+    const project = req.query.project as string | undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : 50;
+    const offset = req.query.offset ? Number(req.query.offset) : 0;
+
+    // Use hybrid search for semantic/hybrid modes when text is provided
+    if (text && (mode === 'semantic' || mode === 'hybrid')) {
+      const result = await hybridSearch({ text, mode, adapters, layers, tags, dateFrom, dateTo, role, project, limit, offset });
+      res.json(result);
+      return;
+    }
+
+    // Default: keyword search
+    const query: MemorySearchQuery = { text, adapters, layers, tags, dateFrom, dateTo, role, project, limit, offset };
     const result = await memoryStore.search(query);
-    res.json(result);
+    res.json({ ...result, mode: 'keyword' });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
@@ -82,6 +92,44 @@ router.post('/auto-tier', async (_req: Request, res: Response) => {
   try {
     const result = await memoryStore.autoTierEntries();
     res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/** POST /api/unified-memory/embeddings/backfill - Backfill vector embeddings for existing entries */
+router.post('/embeddings/backfill', async (_req: Request, res: Response) => {
+  try {
+    if (!vectorStore.isReady()) {
+      res.status(503).json({ error: 'Vector store not initialized' });
+      return;
+    }
+    const result = await backfillEmbeddings();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/** GET /api/unified-memory/embeddings/stats - Vector embedding coverage stats */
+router.get('/embeddings/stats', async (_req: Request, res: Response) => {
+  try {
+    if (!vectorStore.isReady()) {
+      res.json({ ready: false, totalEmbeddings: 0, byAdapter: {}, dbSizeBytes: 0 });
+      return;
+    }
+    const memStats = await memoryStore.getStats();
+    const vecStats = await vectorStore.getStats();
+    res.json({
+      ready: true,
+      totalEntries: memStats.totalEntries,
+      totalEmbeddings: vecStats.totalEmbeddings,
+      coveragePercent: memStats.totalEntries > 0
+        ? Math.round((vecStats.totalEmbeddings / memStats.totalEntries) * 100)
+        : 0,
+      byAdapter: vecStats.byAdapter,
+      dbSizeBytes: vecStats.dbSizeBytes,
+    });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }

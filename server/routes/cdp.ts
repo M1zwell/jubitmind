@@ -31,6 +31,7 @@ router.post('/disconnect', (_req: Request, res: Response) => {
 /** GET /api/cdp/tabs - List all open tabs with AI tool detection */
 router.get('/tabs', async (_req: Request, res: Response) => {
   try {
+    if (!cdpService.getStatus().connected) return res.json({ tabs: [] });
     const tabs = await cdpService.listTabs();
     res.json({ tabs });
   } catch (err) {
@@ -41,6 +42,7 @@ router.get('/tabs', async (_req: Request, res: Response) => {
 /** GET /api/cdp/tabs/ai - List only AI tool tabs */
 router.get('/tabs/ai', async (_req: Request, res: Response) => {
   try {
+    if (!cdpService.getStatus().connected) return res.json({ tabs: [] });
     const tabs = await cdpService.getAIToolTabs();
     res.json({ tabs });
   } catch (err) {

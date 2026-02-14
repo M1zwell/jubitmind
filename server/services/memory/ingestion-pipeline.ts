@@ -1,5 +1,6 @@
 import { registry } from '../adapters/index.js';
 import { memoryStore } from './memory-store.js';
+import { vectorStore } from './vector-store.js';
 
 /**
  * Ingest data from all available adapters into the unified memory store.
@@ -9,11 +10,13 @@ import { memoryStore } from './memory-store.js';
  */
 export async function ingestAllAdapters(): Promise<{
   totalIngested: number;
+  totalEmbedded: number;
   byAdapter: Record<string, number>;
   errors: Array<{ adapterId: string; error: string }>;
 }> {
   const adapters = await registry.getAvailable();
   let totalIngested = 0;
+  let totalEmbedded = 0;
   const byAdapter: Record<string, number> = {};
   const errors: Array<{ adapterId: string; error: string }> = [];
 
@@ -50,7 +53,21 @@ export async function ingestAllAdapters(): Promise<{
     }
   }
 
-  return { totalIngested, byAdapter, errors };
+  // Embed newly ingested entries if vector store is available
+  if (totalIngested > 0 && vectorStore.isReady()) {
+    try {
+      const embeddedIds = vectorStore.getEmbeddedIds();
+      const recentResults = await memoryStore.search({ limit: totalIngested * 2 });
+      const unembedded = recentResults.entries.filter((e) => !embeddedIds.has(e.id));
+      if (unembedded.length > 0) {
+        totalEmbedded = await vectorStore.embedBatch(unembedded);
+      }
+    } catch (err) {
+      console.warn('[Ingestion] Vector embedding failed (non-fatal):', err);
+    }
+  }
+
+  return { totalIngested, totalEmbedded, byAdapter, errors };
 }
 
 /**

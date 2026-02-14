@@ -362,9 +362,10 @@ export const api = {
 
   // Unified Memory
   unifiedMemory: {
-    search: (params?: { text?: string; adapters?: string[]; layers?: string[]; tags?: string[]; dateFrom?: string; dateTo?: string; role?: string; project?: string; limit?: number; offset?: number }) => {
+    search: (params?: { text?: string; mode?: 'keyword' | 'semantic' | 'hybrid'; adapters?: string[]; layers?: string[]; tags?: string[]; dateFrom?: string; dateTo?: string; role?: string; project?: string; limit?: number; offset?: number }) => {
       const query = new URLSearchParams();
       if (params?.text) query.set('text', params.text);
+      if (params?.mode) query.set('mode', params.mode);
       if (params?.adapters?.length) query.set('adapters', params.adapters.join(','));
       if (params?.layers?.length) query.set('layers', params.layers.join(','));
       if (params?.tags?.length) query.set('tags', params.tags.join(','));
@@ -374,10 +375,12 @@ export const api = {
       if (params?.project) query.set('project', params.project);
       if (params?.limit) query.set('limit', String(params.limit));
       if (params?.offset) query.set('offset', String(params.offset));
-      return request<{ entries: unknown[]; total: number; facets: { byAdapter: Record<string, number>; byLayer: Record<string, number>; byTag: Record<string, number>; byProject: Record<string, number> } }>(`/unified-memory/search?${query}`);
+      return request<{ entries: Array<{ id: string; adapterId: string; content: string; role: string; layer: string; ingestedAt: string; tags: string[]; similarityScore?: number }>; total: number; mode: string; facets: { byAdapter: Record<string, number>; byLayer: Record<string, number>; byTag: Record<string, number>; byProject: Record<string, number> } }>(`/unified-memory/search?${query}`);
     },
-    stats: () =>
-      request<{ totalEntries: number; byAdapter: Record<string, number>; byLayer: Record<string, number>; oldest?: string; newest?: string; totalSizeBytes: number }>('/unified-memory/stats'),
+    stats: async () => {
+      const res = await request<{ stats: { totalEntries: number; byAdapter: Record<string, number>; byLayer: Record<string, number>; oldest?: string; newest?: string; totalSizeBytes: number } }>('/unified-memory/stats');
+      return res.stats;
+    },
     ingest: () =>
       request<{ ingested: number; adapters: string[] }>('/unified-memory/ingest', { method: 'POST' }),
     correlate: () =>
@@ -388,5 +391,9 @@ export const api = {
       request<{ relationships: unknown[] }>(`/unified-memory/entry/${id}/graph`),
     autoTier: () =>
       request<{ updated: number }>('/unified-memory/auto-tier', { method: 'POST' }),
+    embeddingsBackfill: () =>
+      request<{ total: number; embedded: number; skipped: number; errors: number; done: boolean }>('/unified-memory/embeddings/backfill', { method: 'POST' }),
+    embeddingsStats: () =>
+      request<{ ready: boolean; totalEntries: number; totalEmbeddings: number; coveragePercent: number; byAdapter: Record<string, number>; dbSizeBytes: number }>('/unified-memory/embeddings/stats'),
   },
 };
