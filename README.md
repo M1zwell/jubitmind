@@ -239,7 +239,7 @@ jubitmind/
 ├── src/                            # React + Vite frontend
 │   ├── App.tsx                     # Router with 18+ routes
 │   ├── components/
-│   │   ├── layout/Sidebar.tsx      # 7-section navigation (20 items)
+│   │   ├── layout/Sidebar.tsx      # 7-section collapsible navigation (27 items)
 │   │   ├── dashboard/              # Unified home dashboard
 │   │   ├── conversations/          # Session list, message thread
 │   │   ├── auditor/                # Auditor reports UI
@@ -356,15 +356,17 @@ All environment variables are optional. JubitMind works fully offline with just 
 
 ## Screenshots
 
-The dashboard features a dark-themed UI with a collapsible sidebar organized into 7 sections:
+The dashboard features a dark-themed UI with a section-collapsible sidebar organized into 7 sections:
 
-- **Monitor** — Dashboard home, Terminal (CLI viewer)
-- **Data & Insights** — History, Archives, Analytics, Auditor, Health
-- **Analysis** — Session Analysis (LLM-powered)
+- **Monitor** — Dashboard, Terminal
+- **Data** — History, Archives, Explorer, Extractions, Memory Store
+- **Insights** — Analytics, Insights, Reports, Session Analysis, Usage & Feedback
+- **Ops** — Auditor, Health, Browser CDP
 - **Routing** — LiteLLM model routing
 - **Configuration** — AI Providers, MCP Servers, Permissions, Agent Configs, Settings, CLAUDE.md
 - **Knowledge** — Skills, Commands, Memory
-- **Jubit AI** — ChatAB, ChatLab (ecosystem links)
+
+ChatAB and ChatLab appear as secondary links in the sidebar footer.
 
 ## Contributing
 
