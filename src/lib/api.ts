@@ -396,4 +396,28 @@ export const api = {
     embeddingsStats: () =>
       request<{ ready: boolean; totalEntries: number; totalEmbeddings: number; coveragePercent: number; byAdapter: Record<string, number>; dbSizeBytes: number }>('/unified-memory/embeddings/stats'),
   },
+
+  // Feedback
+  feedback: {
+    list: (params?: { adapterId?: string; rating?: string; limit?: number; offset?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.adapterId) query.set('adapterId', params.adapterId);
+      if (params?.rating) query.set('rating', params.rating);
+      if (params?.limit) query.set('limit', String(params.limit));
+      if (params?.offset) query.set('offset', String(params.offset));
+      return request<{ entries: import('./types').SessionFeedback[]; total: number }>(`/feedback?${query}`);
+    },
+    stats: () => request<import('./types').FeedbackStats>('/feedback/stats'),
+    get: (sessionId: string, adapterId?: string) => {
+      const query = adapterId ? `?adapterId=${adapterId}` : '';
+      return request<{ feedback: import('./types').SessionFeedback | null }>(`/feedback/${sessionId}${query}`);
+    },
+    submit: (data: { sessionId: string; adapterId: string; rating: 'positive' | 'negative'; comment?: string; tags?: string[] }) =>
+      request<{ feedback: import('./types').SessionFeedback }>('/feedback', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      request<{ ok: boolean }>(`/feedback/${id}`, { method: 'DELETE' }),
+  },
 };

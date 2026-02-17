@@ -27,6 +27,7 @@ import extractionsRoutes from './routes/extractions.js';
 import reportsRoutes from './routes/reports.js';
 import cdpRoutes from './routes/cdp.js';
 import unifiedMemoryRoutes from './routes/unified-memory.js';
+import feedbackRoutes from './routes/feedback.js';
 import { initAdapters } from './services/adapters/index.js';
 import { startAuditor } from './services/auditor-agent.js';
 import { classifyPendingSessions, refreshAll } from './services/session-cache.js';
@@ -74,6 +75,7 @@ app.use('/api/extractions', extractionsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/cdp', cdpRoutes);
 app.use('/api/unified-memory', unifiedMemoryRoutes);
+app.use('/api/feedback', feedbackRoutes);
 app.use('/api', systemRoutes); // Mount /api/plugins/list
 
 // Error handler

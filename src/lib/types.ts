@@ -526,3 +526,26 @@ export interface SidecarConfig {
   temperature?: number;
   batch_length?: number;
 }
+
+// --- Session Feedback ---
+
+export interface SessionFeedback {
+  id: string;
+  sessionId: string;
+  adapterId: string;
+  rating: 'positive' | 'negative';
+  comment?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeedbackStats {
+  totalRatings: number;
+  positiveCount: number;
+  negativeCount: number;
+  positiveRate: number;
+  byAdapter: Record<string, { positive: number; negative: number }>;
+  recentFeedback: SessionFeedback[];
+  topTags: Array<{ tag: string; count: number }>;
+}

@@ -31,6 +31,7 @@ import {
   Download,
   Globe,
   Database,
+  ThumbsUp,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { JUBIT_BASE } from '@/lib/config';
@@ -59,6 +60,7 @@ const NAV_SECTIONS = [
       { to: '/health', icon: Activity, label: 'Health' },
       { to: '/browser', icon: Globe, label: 'Browser CDP' },
       { to: '/unified-memory', icon: Database, label: 'Memory Store' },
+      { to: '/usage-feedback', icon: ThumbsUp, label: 'Usage & Feedback' },
     ],
   },
   {

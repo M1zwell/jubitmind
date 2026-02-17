@@ -29,6 +29,7 @@ import { ReportsPage } from '@/pages/ReportsPage';
 import { SetupWizardPage } from '@/pages/SetupWizardPage';
 import { CDPBrowserPage } from '@/pages/CDPBrowserPage';
 import { UnifiedMemoryPage } from '@/pages/UnifiedMemoryPage';
+import { UsageFeedbackPage } from '@/pages/UsageFeedbackPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/health" element={<UsageDashboard />} />
             <Route path="/browser" element={<CDPBrowserPage />} />
             <Route path="/unified-memory" element={<UnifiedMemoryPage />} />
+            <Route path="/usage-feedback" element={<UsageFeedbackPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
